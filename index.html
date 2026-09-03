@@ -66,6 +66,7 @@
         flex-wrap: wrap;
         gap: 10px;
         align-items: center;
+        margin-bottom: 18px;
       }
 
       button {
@@ -95,7 +96,7 @@
 
       .grid {
         display: grid;
-        grid-template-columns: 1.35fr 0.95fr;
+        grid-template-columns: 1.15fr 1fr;
         gap: 16px;
         margin-top: 18px;
       }
@@ -178,8 +179,20 @@
         letter-spacing: -0.03em;
       }
 
+      .kpi-sub {
+        margin-top: 3px;
+        color: var(--muted);
+        font-size: 0.82rem;
+      }
+
       .section {
         padding: 18px 20px 20px;
+      }
+
+      .recent-block {
+        margin-top: 18px;
+        padding-top: 18px;
+        border-top: 1px solid var(--soft);
       }
 
       .section h2 {
@@ -237,19 +250,88 @@
         white-space: nowrap;
       }
 
-      .triple-desc {
-        margin: 0;
-        color: var(--text);
-      }
-
       .triple-meta {
-        margin-top: 4px;
         color: var(--muted);
         font-size: 0.9rem;
       }
 
       .table-wrap {
         overflow-x: auto;
+      }
+
+      .leaderboard-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .leaderboard-card {
+        border: 1px solid var(--soft);
+        border-radius: 16px;
+        padding: 14px;
+        background: linear-gradient(180deg, #fff, #faf8f3);
+      }
+
+      .leaderboard-rank {
+        margin-top: 6px;
+        font-size: 1.5rem;
+        font-weight: 700;
+        letter-spacing: -0.03em;
+      }
+
+      .leaderboard-list {
+        list-style: none;
+        padding: 0;
+        margin: 12px 0 0;
+        display: grid;
+        gap: 7px;
+      }
+
+      .leaderboard-list li {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding-top: 7px;
+        border-top: 1px solid var(--soft);
+        font-size: 0.92rem;
+      }
+
+      .leaderboard-list .current {
+        color: var(--accent);
+        font-weight: 700;
+      }
+
+      .leaderboard-list .ellipsis {
+        display: block;
+        color: var(--muted);
+        text-align: center;
+      }
+
+      .leaderboard-columns,
+      .leaderboard-stats {
+        display: grid;
+        gap: 12px;
+        align-items: baseline;
+      }
+
+      .leaderboard-columns {
+        grid-template-columns: minmax(0, 1fr) auto auto;
+      }
+
+      .leaderboard-stats {
+        grid-template-columns: auto auto;
+      }
+
+      .leaderboard-columns {
+        margin-top: 12px;
+        color: var(--muted);
+        font-size: 0.72rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .leaderboard-columns span:first-child {
+        min-width: 0;
       }
 
       table {
@@ -322,20 +404,22 @@
         .kpis {
           grid-template-columns: 1fr;
         }
+
+        .leaderboard-grid {
+          grid-template-columns: 1fr;
+        }
       }
     </style>
   </head>
   <body>
     <div class="wrap">
       <main class="grid">
-        <section class="panel hero" aria-labelledby="season-heading">
+        <section class="panel hero" aria-label="Current season triples">
           <div class="hero-top">
             <div>
-              <div class="eyebrow" id="season-heading">2026</div>
               <div class="big-number" id="season-triples">--</div>
-              <div class="big-label" id="season-label">Triples</div>
+              <div class="big-label" id="season-label">Triples in 2026</div>
             </div>
-            <div class="pill" id="current-team-pill">Arizona Diamondbacks</div>
           </div>
 
           <div class="toolbar">
@@ -347,35 +431,30 @@
             <div class="kpi">
               <div class="kpi-label">Career</div>
               <div class="kpi-value" id="career-triples">--</div>
+              <div class="kpi-sub" id="career-seasons-main">-- seasons</div>
             </div>
             <div class="kpi">
               <div class="kpi-label">Checked</div>
               <div class="kpi-value" id="last-checked">--</div>
             </div>
-            <div class="kpi">
-              <div class="kpi-label">Latest</div>
-              <div class="kpi-value" id="most-recent">--</div>
-            </div>
           </div>
 
-          <div class="error" id="error" hidden></div>
-        </section>
-
-        <div class="stack">
-          <section class="panel section" aria-labelledby="recent-heading">
+          <section class="recent-block" aria-labelledby="recent-heading">
             <div class="section-head">
-                <h2 id="recent-heading">Last 3</h2>
-              <div class="subtle" id="recent-summary">...</div>
+              <h2 id="recent-heading">Latest</h2>
             </div>
             <ol class="triples-list" id="recent-triples">
               <li class="empty">...</li>
             </ol>
           </section>
 
+          <div class="error" id="error" hidden></div>
+        </section>
+
+        <div class="stack">
           <section class="panel section" aria-labelledby="career-heading">
             <div class="section-head">
                 <h2 id="career-heading">By year</h2>
-              <div class="subtle">Triples</div>
             </div>
             <div class="table-wrap">
               <table>
@@ -394,6 +473,32 @@
               </table>
             </div>
           </section>
+
+          <section class="panel section" aria-labelledby="leaderboard-heading">
+            <div class="section-head">
+              <h2 id="leaderboard-heading">Leaderboard</h2>
+              <div class="subtle">Triples</div>
+            </div>
+            <div class="leaderboard-grid">
+              <div class="leaderboard-card">
+                <div class="kpi-label" id="season-rank-label">2026</div>
+                <ol class="leaderboard-list" id="season-leaderboard">
+                  <li class="empty">...</li>
+                </ol>
+              </div>
+              <div class="leaderboard-card">
+                <div class="kpi-label">Career</div>
+                <div class="leaderboard-columns">
+                  <span>Player</span>
+                  <span>Seasons</span>
+                  <span>Triples</span>
+                </div>
+                <ol class="leaderboard-list" id="career-leaderboard">
+                  <li class="empty">...</li>
+                </ol>
+              </div>
+            </div>
+          </section>
         </div>
       </main>
     </div>
@@ -408,12 +513,13 @@
         seasonTriples: document.getElementById("season-triples"),
         seasonLabel: document.getElementById("season-label"),
         careerTriples: document.getElementById("career-triples"),
+        careerSeasonsMain: document.getElementById("career-seasons-main"),
         lastChecked: document.getElementById("last-checked"),
-        mostRecent: document.getElementById("most-recent"),
-        currentTeamPill: document.getElementById("current-team-pill"),
-        recentSummary: document.getElementById("recent-summary"),
         recentTriples: document.getElementById("recent-triples"),
         careerTable: document.getElementById("career-table"),
+        seasonRankLabel: document.getElementById("season-rank-label"),
+        seasonLeaderboard: document.getElementById("season-leaderboard"),
+        careerLeaderboard: document.getElementById("career-leaderboard"),
         error: document.getElementById("error"),
         refreshButton: document.getElementById("refresh-button"),
       };
@@ -514,7 +620,11 @@
 
       function extractSplits(payload) {
         if (!payload) return [];
-        const stats = Array.isArray(payload.stats) ? payload.stats : [];
+        const stats = Array.isArray(payload.stats)
+          ? payload.stats
+          : Array.isArray(payload.people?.[0]?.stats)
+            ? payload.people[0].stats
+            : [];
         for (const statEntry of stats) {
           const splits = statEntry?.splits;
           if (Array.isArray(splits) && splits.length) return splits;
@@ -550,6 +660,110 @@
           trimText(split?.team?.abbreviation) ||
           ""
         );
+      }
+
+      function extractOpponentName(split) {
+        return (
+          trimText(split?.opponent?.name) ||
+          trimText(split?.opponent?.clubName) ||
+          trimText(split?.opponent?.abbreviation) ||
+          ""
+        );
+      }
+
+      function extractPlayerId(split) {
+        return split?.player?.id ?? split?.person?.id ?? split?.playerId ?? null;
+      }
+
+      function extractPlayerName(split) {
+        return (
+          trimText(split?.player?.fullName) ||
+          trimText(split?.player?.fullNameDisplay) ||
+          trimText(split?.person?.fullName) ||
+          ""
+        );
+      }
+
+      function getLeaderboardData(payload, playerId, fallbackName) {
+        const rows = extractSplits(payload)
+          .map((split) => ({
+            triples: statValue(split, "triples"),
+            playerId: extractPlayerId(split),
+            playerName: extractPlayerName(split) || "Unknown",
+          }))
+          .filter((row) => row.playerId || row.playerName);
+
+        rows.sort((a, b) => b.triples - a.triples);
+        const rankedRows = rows.map((row, index) => ({
+          ...row,
+          rank: index + 1,
+        }));
+        const index = rankedRows.findIndex(
+          (row) =>
+            String(row.playerId) === String(playerId) ||
+            row.playerName === fallbackName
+        );
+        if (index < 0) return null;
+
+        return {
+          rank: index + 1,
+          rows:
+            index < 10
+              ? rankedRows.slice(0, 10)
+              : [
+                  ...rankedRows.slice(0, 10),
+                  { ellipsis: true },
+                  { ...rankedRows[index], playerName: fallbackName },
+                ],
+        };
+      }
+
+      async function addCareerSeasonCounts(data) {
+        if (!data) return;
+
+        await Promise.all(
+          data.rows
+            .filter((row) => !row.ellipsis && row.playerId)
+            .map(async (row) => {
+              try {
+                const payload = await fetchJson(
+                  `${MLB_BASE}/people/${row.playerId}/stats?stats=yearByYear&group=hitting`
+                );
+                row.seasons = groupCareerByYear(payload).length;
+              } catch (error) {
+                console.warn(`Could not load seasons for ${row.playerName}`, error);
+                row.seasons = null;
+              }
+            })
+        );
+      }
+
+      function renderLeaderboard(element, data, showSeasons, player) {
+        if (!data) {
+          element.innerHTML = `<li class="empty">No data.</li>`;
+          return;
+        }
+
+        element.innerHTML = data.rows
+          .map((row) => {
+            if (row.ellipsis) return `<li class="ellipsis">...</li>`;
+            const current =
+              String(row.playerId) === String(PERSON_ID) ||
+              row.playerName === player;
+            return `
+              <li class="${current ? "current" : ""}">
+                <span>#${fmtNumber(row.rank)} ${row.playerName}</span>
+                ${
+                  showSeasons
+                    ? `<div class="leaderboard-stats"><span>${
+                        row.seasons == null ? "--" : `${row.seasons}`
+                      }</span><strong>${fmtNumber(row.triples)}</strong></div>`
+                    : `<strong>${fmtNumber(row.triples)}</strong>`
+                }
+              </li>
+            `;
+          })
+          .join("");
       }
 
       function seasonTriplesFrom(payload, season) {
@@ -605,48 +819,25 @@
           els.recentTriples.innerHTML = `
             <li class="empty">No triples yet.</li>
           `;
-          els.recentSummary.textContent = "0";
-          els.mostRecent.textContent = "--";
           return;
         }
 
-        const mostRecentDate = events[0]?.date ?? null;
-        els.mostRecent.textContent = isToday(mostRecentDate) ? "Today" : formatDateLabel(mostRecentDate);
-        els.recentSummary.textContent = `${events.length}`;
-
         els.recentTriples.innerHTML = events
-          .slice(0, 3)
+          .slice(0, 5)
           .map((event) => {
-            const dayLabel = isToday(event.date)
-              ? "Today"
-              : formatDateLabel(event.date);
-            const timeLabel = event.gameTime
-              ? new Intl.DateTimeFormat(undefined, {
-                  hour: "numeric",
-                  minute: "2-digit",
-                }).format(new Date(event.gameTime))
-              : "--";
-            const venue = event.venue || "--";
-            const opponent = event.opponent || "--";
-            const locationBit = event.homeAway === "home" ? `vs. ${opponent}` : `at ${opponent}`;
-            const inningBit = event.inning ? `${event.inning}` : "";
-            const halfBit = event.half ? event.half : "";
+            const dayLabel = formatDateLabel(event.date);
+            const venue = event.venue || "";
+            const opponent = event.opponent || "Unknown";
+            const locationBit = event.homeAway === "home" ? `vs. ${opponent}` : `@ ${opponent}`;
+            const details = [dayLabel, locationBit, venue].filter(Boolean).join(" · ");
             return `
               <li class="triple-item">
-                <div class="triple-main">
-                  <div class="triple-title">${dayLabel}</div>
-                  <div class="triple-time">${timeLabel}</div>
-                </div>
-                <p class="triple-desc">${event.description || `${player} tripled.`}</p>
-                <div class="triple-meta">
-                  ${locationBit} · ${venue}${inningBit ? ` · ${halfBit} ${inningBit}` : ""}
-                </div>
+                <div class="triple-meta">${details}</div>
               </li>
             `;
           })
           .join("");
 
-        els.mostRecent.title = events[0]?.description || "";
       }
 
       function renderCareerTable(rows) {
@@ -673,10 +864,39 @@
           .join("");
       }
 
-      async function loadRecentTripleEvents(season, playerId) {
-        const gameLogUrl = `${MLB_BASE}/people/${playerId}/stats?stats=gameLog&group=hitting&season=${season}`;
+      function fallbackTripleEvents(split, date, player) {
+        const count = Math.max(1, statValue(split, "triples"));
+        const gameTime = split?.game?.gameDate || split?.game?.date || null;
+        const opponent = extractOpponentName(split);
+        const homeAway = split?.isHome === true ? "home" : "away";
+
+        return Array.from({ length: count }, (_, index) => ({
+          date,
+          gameTime,
+          venue: "",
+          opponent,
+          homeAway,
+          inning: "",
+          half: "",
+          description: `${player} tripled.`,
+          playIndex: index,
+        }));
+      }
+
+      async function loadRecentTripleEvents(season, playerId, player) {
+        const gameLogUrl =
+          `${MLB_BASE}/people/${playerId}/stats?stats=gameLog&group=hitting` +
+          `&gameType=R&season=${season}`;
         const gameLogPayload = await fetchJson(gameLogUrl);
-        const splits = extractSplits(gameLogPayload);
+        let splits = extractSplits(gameLogPayload);
+
+        if (!splits.length) {
+          const hydratedUrl =
+            `${MLB_BASE}/people/${playerId}?hydrate=` +
+            `stats(type=gameLog,season=${season},group=hitting)`;
+          const hydratedPayload = await fetchJson(hydratedUrl);
+          splits = extractSplits(hydratedPayload);
+        }
 
         const tripleGames = splits
           .map((split, index) => {
@@ -691,60 +911,13 @@
               date,
             };
           })
-          .filter((entry) => entry.triples > 0 && entry.gamePk && entry.date)
+          .filter((entry) => entry.triples > 0 && entry.date)
           .sort((a, b) => new Date(b.date) - new Date(a.date));
 
         if (!tripleGames.length) return [];
 
-        const gameEventGroups = await Promise.all(
-          tripleGames.map(async ({ split, gamePk, date }) => {
-            const feed = await fetchJson(`${MLB_BASE}/game/${gamePk}/feed/live`);
-            const gameData = feed?.gameData || {};
-            const livePlays = feed?.liveData?.plays?.allPlays || [];
-            const officialDate =
-              isoDateFromMaybe(gameData?.datetime?.officialDate) ||
-              isoDateFromMaybe(gameData?.officialDate) ||
-              date;
-            const gameTime = gameData?.datetime?.dateTime || null;
-            const venue = trimText(gameData?.venue?.name) || "";
-            const awayTeam = trimText(gameData?.teams?.away?.name) || "Away";
-            const homeTeam = trimText(gameData?.teams?.home?.name) || "Home";
-            const playerTeamId = split?.team?.id;
-            const isAway = playerTeamId && gameData?.teams?.away?.id === playerTeamId;
-            const isHome = playerTeamId && gameData?.teams?.home?.id === playerTeamId;
-            const opponent = isAway ? homeTeam : awayTeam;
-            const homeAway = isAway ? "away" : isHome ? "home" : "home";
-
-            const events = livePlays
-              .map((play, playIndex) => ({
-                play,
-                playIndex,
-              }))
-              .filter(({ play }) => {
-                const batterId = play?.matchup?.batter?.id;
-                if (batterId !== PERSON_ID) return false;
-                const eventName = String(play?.result?.event || "");
-                const eventType = String(play?.result?.eventType || "");
-                return /triple/i.test(eventName) || eventType.toLowerCase() === "triple";
-              })
-              .map(({ play, playIndex }) => ({
-                date: officialDate,
-                gameTime,
-                venue,
-                opponent,
-                homeAway,
-                inning: play?.about?.inning ? `${play.about.inning}` : "",
-                half: play?.about?.isTopInning ? "Top" : "Bottom",
-                description: trimText(play?.result?.description) || "Triple.",
-                playIndex,
-              }));
-
-            return events;
-          })
-        );
-
-        return gameEventGroups
-          .flat()
+        return tripleGames
+          .flatMap(({ split, date }) => fallbackTripleEvents(split, date, player))
           .sort((a, b) => {
             const dateDiff = new Date(b.date) - new Date(a.date);
             if (dateDiff !== 0) return dateDiff;
@@ -767,19 +940,48 @@
           const seasonUrl = `${MLB_BASE}/people/${PERSON_ID}/stats?stats=season&group=hitting&season=${season}`;
           const careerUrl = `${MLB_BASE}/people/${PERSON_ID}/stats?stats=career&group=hitting`;
           const yearByYearUrl = `${MLB_BASE}/people/${PERSON_ID}/stats?stats=yearByYear&group=hitting`;
+          const seasonLeaderboardUrl =
+            `${MLB_BASE}/stats?stats=season&group=hitting&season=${season}` +
+            "&playerPool=ALL&sortStat=triples&order=desc&limit=5000";
+          const careerLeaderboardUrl =
+            `${MLB_BASE}/stats?stats=career&group=hitting` +
+            "&playerPool=ALL&sortStat=triples&order=desc&limit=5000";
 
-          const [profileRes, seasonRes, careerRes, yearRes] = await Promise.allSettled([
+          const [profileRes, seasonRes, careerRes, yearRes, seasonLeaderboardRes, careerLeaderboardRes] = await Promise.allSettled([
             fetchJson(profileUrl),
             fetchJson(seasonUrl),
             fetchJson(careerUrl),
             fetchJson(yearByYearUrl),
+            fetchJson(seasonLeaderboardUrl),
+            fetchJson(careerLeaderboardUrl),
           ]);
 
           const profile = profileRes.status === "fulfilled" ? profileRes.value?.people?.[0] : null;
           const player = playerName(profile);
           const teamName = currentTeamName(profile);
 
-          els.currentTeamPill.textContent = teamName;
+          els.seasonRankLabel.textContent = season;
+          const seasonLeaderboardData =
+            seasonLeaderboardRes.status === "fulfilled"
+              ? getLeaderboardData(seasonLeaderboardRes.value, PERSON_ID, player)
+              : null;
+          const careerLeaderboardData =
+            careerLeaderboardRes.status === "fulfilled"
+              ? getLeaderboardData(careerLeaderboardRes.value, PERSON_ID, player)
+              : null;
+          await addCareerSeasonCounts(careerLeaderboardData);
+          renderLeaderboard(
+            els.seasonLeaderboard,
+            seasonLeaderboardData,
+            false,
+            player
+          );
+          renderLeaderboard(
+            els.careerLeaderboard,
+            careerLeaderboardData,
+            true,
+            player
+          );
 
           const seasonTriples =
             seasonRes.status === "fulfilled"
@@ -794,6 +996,7 @@
 
           const seasonFallback = careerRows.find((row) => String(row.season) === String(season));
           const summedCareer = careerRows.reduce((sum, row) => sum + row.triples, 0);
+          els.careerSeasonsMain.textContent = `${careerRows.length} seasons`;
 
           els.seasonTriples.textContent = fmtNumber(seasonTriples);
           els.careerTriples.textContent = fmtNumber(careerTriples || summedCareer);
@@ -803,15 +1006,13 @@
 
           let recentEvents = [];
           try {
-            recentEvents = await loadRecentTripleEvents(season, PERSON_ID);
+            recentEvents = await loadRecentTripleEvents(season, PERSON_ID, player);
             renderRecentTriples(recentEvents, player, teamName, season);
           } catch (recentError) {
             console.error(recentError);
-            els.recentSummary.textContent = "--";
             els.recentTriples.innerHTML = `
               <li class="empty">No data.</li>
             `;
-            els.mostRecent.textContent = "--";
           }
           renderCareerTable(careerRows);
 
@@ -829,11 +1030,11 @@
             "MLB API unavailable."
           );
           els.status.textContent = "Load failed";
-          els.recentSummary.textContent = "--";
-          els.currentTeamPill.textContent = "--";
           els.seasonTriples.textContent = "--";
           els.careerTriples.textContent = "--";
-          els.mostRecent.textContent = "--";
+          els.seasonLeaderboard.innerHTML = `<li class="empty">No data.</li>`;
+          els.careerLeaderboard.innerHTML = `<li class="empty">No data.</li>`;
+          els.careerSeasonsMain.textContent = "-- seasons";
           els.recentTriples.innerHTML = `
             <li class="empty">No data.</li>
           `;
