@@ -1,0 +1,875 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Corbin Carroll's Triples</title>
+    <meta
+      name="description"
+      content="Corbin Carroll triples."
+    />
+    <link rel="icon" type="image/webp" href="triplet.webp" />
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f6f5f1;
+        --panel: #ffffff;
+        --text: #161616;
+        --muted: #666666;
+        --line: #d9d5cc;
+        --soft: #eeebe3;
+        --accent: #0f766e;
+        --accent-soft: rgba(15, 118, 110, 0.1);
+        --shadow: 0 12px 30px rgba(24, 24, 24, 0.06);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+      }
+
+      body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+        background:
+          radial-gradient(circle at top left, rgba(15, 118, 110, 0.08), transparent 24%),
+          radial-gradient(circle at top right, rgba(17, 24, 39, 0.05), transparent 22%),
+          var(--bg);
+        color: var(--text);
+        line-height: 1.45;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      .wrap {
+        width: min(1080px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 28px 0 40px;
+      }
+
+      .eyebrow {
+        font-size: 0.82rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+      }
+
+      button {
+        appearance: none;
+        border: 1px solid var(--line);
+        background: var(--panel);
+        color: var(--text);
+        border-radius: 999px;
+        padding: 10px 14px;
+        font: inherit;
+        cursor: pointer;
+      }
+
+      button:hover {
+        border-color: #bdb6aa;
+      }
+
+      button:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
+
+      .meta {
+        font-size: 0.92rem;
+        color: var(--muted);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1.35fr 0.95fr;
+        gap: 16px;
+        margin-top: 18px;
+      }
+
+      .stack {
+        display: grid;
+        gap: 16px;
+      }
+
+      .panel {
+        background: rgba(255, 255, 255, 0.84);
+        border: 1px solid rgba(217, 213, 204, 0.92);
+        border-radius: 20px;
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(8px);
+      }
+
+      .hero {
+        padding: 20px;
+      }
+
+      .hero-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: start;
+        margin-bottom: 18px;
+      }
+
+      .big-number {
+        font-size: clamp(3.2rem, 10vw, 6.4rem);
+        line-height: 0.9;
+        letter-spacing: -0.06em;
+        font-weight: 700;
+      }
+
+      .big-label {
+        margin-top: 8px;
+        font-size: 0.95rem;
+        color: var(--muted);
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-size: 0.88rem;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+
+      .kpis {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .kpi {
+        border: 1px solid var(--soft);
+        border-radius: 16px;
+        padding: 14px;
+        background: linear-gradient(180deg, #fff, #faf8f3);
+      }
+
+      .kpi-label {
+        font-size: 0.78rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .kpi-value {
+        margin-top: 8px;
+        font-size: 1.5rem;
+        font-weight: 700;
+        letter-spacing: -0.03em;
+      }
+
+      .section {
+        padding: 18px 20px 20px;
+      }
+
+      .section h2 {
+        margin: 0 0 8px;
+        font-size: 1.05rem;
+        letter-spacing: -0.02em;
+      }
+
+      .section-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: baseline;
+        margin-bottom: 12px;
+      }
+
+      .subtle {
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+
+      .triples-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        gap: 12px;
+      }
+
+      .triple-item {
+        border-top: 1px solid var(--soft);
+        padding-top: 12px;
+      }
+
+      .triple-item:first-child {
+        border-top: 0;
+        padding-top: 0;
+      }
+
+      .triple-main {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: baseline;
+        margin-bottom: 6px;
+      }
+
+      .triple-title {
+        font-weight: 650;
+      }
+
+      .triple-time {
+        color: var(--muted);
+        font-size: 0.88rem;
+        white-space: nowrap;
+      }
+
+      .triple-desc {
+        margin: 0;
+        color: var(--text);
+      }
+
+      .triple-meta {
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      .table-wrap {
+        overflow-x: auto;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      thead th {
+        text-align: left;
+        font-size: 0.78rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--muted);
+        padding: 10px 0;
+        border-bottom: 1px solid var(--soft);
+      }
+
+      tbody td {
+        padding: 12px 0;
+        border-bottom: 1px solid var(--soft);
+        vertical-align: top;
+      }
+
+      .year {
+        font-weight: 700;
+      }
+
+      .team-list {
+        color: var(--muted);
+      }
+
+      .error {
+        margin-top: 16px;
+        border: 1px solid rgba(185, 28, 28, 0.22);
+        background: rgba(254, 242, 242, 0.88);
+        color: #7f1d1d;
+        border-radius: 16px;
+        padding: 14px 16px;
+      }
+
+      .loading {
+        padding: 18px 20px 22px;
+        color: var(--muted);
+      }
+
+      .empty {
+        color: var(--muted);
+        font-style: italic;
+      }
+
+      @media (max-width: 860px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .wrap {
+          width: min(100% - 20px, 1080px);
+          padding-top: 16px;
+        }
+
+        .hero-top,
+        .section-head,
+        .triple-main {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .kpis {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <main class="grid">
+        <section class="panel hero" aria-labelledby="season-heading">
+          <div class="hero-top">
+            <div>
+              <div class="eyebrow" id="season-heading">2026</div>
+              <div class="big-number" id="season-triples">--</div>
+              <div class="big-label" id="season-label">Triples</div>
+            </div>
+            <div class="pill" id="current-team-pill">Arizona Diamondbacks</div>
+          </div>
+
+          <div class="toolbar">
+            <button id="refresh-button" type="button">Refresh</button>
+            <div class="meta" id="status">Loading...</div>
+          </div>
+
+          <div class="kpis" aria-label="Snapshot numbers">
+            <div class="kpi">
+              <div class="kpi-label">Career</div>
+              <div class="kpi-value" id="career-triples">--</div>
+            </div>
+            <div class="kpi">
+              <div class="kpi-label">Checked</div>
+              <div class="kpi-value" id="last-checked">--</div>
+            </div>
+            <div class="kpi">
+              <div class="kpi-label">Latest</div>
+              <div class="kpi-value" id="most-recent">--</div>
+            </div>
+          </div>
+
+          <div class="error" id="error" hidden></div>
+        </section>
+
+        <div class="stack">
+          <section class="panel section" aria-labelledby="recent-heading">
+            <div class="section-head">
+                <h2 id="recent-heading">Last 3</h2>
+              <div class="subtle" id="recent-summary">...</div>
+            </div>
+            <ol class="triples-list" id="recent-triples">
+              <li class="empty">...</li>
+            </ol>
+          </section>
+
+          <section class="panel section" aria-labelledby="career-heading">
+            <div class="section-head">
+                <h2 id="career-heading">By year</h2>
+              <div class="subtle">Triples</div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Year</th>
+                    <th>Team</th>
+                    <th>Triples</th>
+                  </tr>
+                </thead>
+                <tbody id="career-table">
+                  <tr>
+                    <td colspan="3" class="empty">...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      const MLB_BASE = "https://statsapi.mlb.com/api/v1";
+      const PERSON_ID = 682998;
+      const AUTO_REFRESH_MS = 5 * 60 * 1000;
+
+      const els = {
+        status: document.getElementById("status"),
+        seasonTriples: document.getElementById("season-triples"),
+        seasonLabel: document.getElementById("season-label"),
+        careerTriples: document.getElementById("career-triples"),
+        lastChecked: document.getElementById("last-checked"),
+        mostRecent: document.getElementById("most-recent"),
+        currentTeamPill: document.getElementById("current-team-pill"),
+        recentSummary: document.getElementById("recent-summary"),
+        recentTriples: document.getElementById("recent-triples"),
+        careerTable: document.getElementById("career-table"),
+        error: document.getElementById("error"),
+        refreshButton: document.getElementById("refresh-button"),
+      };
+
+      let refreshTimer = null;
+      let loading = false;
+      let lastLoadedAt = null;
+
+      function fmtNumber(value) {
+        return Number.isFinite(value) ? new Intl.NumberFormat().format(value) : "--";
+      }
+
+      function parseNumber(value) {
+        const n = Number(value);
+        return Number.isFinite(n) ? n : 0;
+      }
+
+      function trimText(value) {
+        return typeof value === "string" ? value.trim() : "";
+      }
+
+      function isoDateFromMaybe(value) {
+        if (!value) return null;
+        const str = String(value);
+        if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
+        const d = new Date(str);
+        return Number.isNaN(d.getTime()) ? null : d.toISOString().slice(0, 10);
+      }
+
+      function formatDateLabel(value) {
+        const iso = isoDateFromMaybe(value);
+        if (!iso) return "Unknown date";
+        const date = new Date(`${iso}T00:00:00`);
+        return new Intl.DateTimeFormat(undefined, {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        }).format(date);
+      }
+
+      function isToday(value) {
+        const iso = isoDateFromMaybe(value);
+        if (!iso) return false;
+        const today = new Date();
+        const local = new Date(`${iso}T00:00:00`);
+        return (
+          local.getFullYear() === today.getFullYear() &&
+          local.getMonth() === today.getMonth() &&
+          local.getDate() === today.getDate()
+        );
+      }
+
+      function timeAgoLabel(value) {
+        const when = new Date(value);
+        if (Number.isNaN(when.getTime())) return "--";
+        const diff = Date.now() - when.getTime();
+        const minutes = Math.max(0, Math.round(diff / 60000));
+        if (minutes < 1) return "just now";
+        if (minutes < 60) return `${minutes}m ago`;
+        const hours = Math.round(minutes / 60);
+        if (hours < 24) return `${hours}h ago`;
+        const days = Math.round(hours / 24);
+        return `${days}d ago`;
+      }
+
+      function playerName(profile) {
+        return trimText(profile?.fullName) || "Corbin Carroll";
+      }
+
+      function currentTeamName(profile) {
+        return (
+          trimText(profile?.currentTeam?.name) ||
+          trimText(profile?.currentTeam?.clubName) ||
+          "Arizona Diamondbacks"
+        );
+      }
+
+      async function fetchJson(url, timeoutMs = 15000) {
+        const controller = new AbortController();
+        const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
+        try {
+          const response = await fetch(url, {
+            signal: controller.signal,
+            cache: "no-store",
+          });
+          if (!response.ok) {
+            throw new Error(`${response.status} ${response.statusText}`);
+          }
+          return await response.json();
+        } finally {
+          window.clearTimeout(timeout);
+        }
+      }
+
+      function statValue(statBlock, key) {
+        return parseNumber(statBlock?.stat?.[key]);
+      }
+
+      function extractSplits(payload) {
+        if (!payload) return [];
+        const stats = Array.isArray(payload.stats) ? payload.stats : [];
+        for (const statEntry of stats) {
+          const splits = statEntry?.splits;
+          if (Array.isArray(splits) && splits.length) return splits;
+        }
+        return [];
+      }
+
+      function extractGamePk(split) {
+        return (
+          split?.gamePk ??
+          split?.game?.gamePk ??
+          split?.game?.pk ??
+          split?.game?.id ??
+          null
+        );
+      }
+
+      function extractSplitDate(split) {
+        return (
+          isoDateFromMaybe(split?.date) ||
+          isoDateFromMaybe(split?.game?.date) ||
+          isoDateFromMaybe(split?.game?.officialDate) ||
+          isoDateFromMaybe(split?.gameDate) ||
+          isoDateFromMaybe(split?.stat?.date) ||
+          null
+        );
+      }
+
+      function extractTeamName(split) {
+        return (
+          trimText(split?.team?.name) ||
+          trimText(split?.team?.clubName) ||
+          trimText(split?.team?.abbreviation) ||
+          ""
+        );
+      }
+
+      function seasonTriplesFrom(payload, season) {
+        const splits = extractSplits(payload);
+        const seasonSplit = splits.find((split) => String(split?.season) === String(season));
+        if (seasonSplit) return statValue(seasonSplit, "triples");
+        if (splits.length === 1) return statValue(splits[0], "triples");
+        return 0;
+      }
+
+      function careerTriplesFrom(payload) {
+        const splits = extractSplits(payload);
+        if (!splits.length) return 0;
+        return splits.reduce((sum, split) => sum + statValue(split, "triples"), 0);
+      }
+
+      function groupCareerByYear(payload) {
+        const splits = extractSplits(payload);
+        const grouped = new Map();
+
+        for (const split of splits) {
+          const season = String(split?.season ?? split?.date?.slice?.(0, 4) ?? "");
+          if (!season) continue;
+          const entry = grouped.get(season) || { triples: 0, teams: new Set() };
+          entry.triples += statValue(split, "triples");
+
+          const team = extractTeamName(split);
+          if (team) entry.teams.add(team);
+          grouped.set(season, entry);
+        }
+
+        return [...grouped.entries()]
+          .sort((a, b) => Number(b[0]) - Number(a[0]))
+          .map(([season, entry]) => ({
+            season,
+            triples: entry.triples,
+            teams: [...entry.teams],
+          }));
+      }
+
+      function clearError() {
+        els.error.hidden = true;
+        els.error.textContent = "";
+      }
+
+      function showError(message) {
+        els.error.textContent = message;
+        els.error.hidden = false;
+      }
+
+      function renderRecentTriples(events, player, teamName, season) {
+        if (!events.length) {
+          els.recentTriples.innerHTML = `
+            <li class="empty">No triples yet.</li>
+          `;
+          els.recentSummary.textContent = "0";
+          els.mostRecent.textContent = "--";
+          return;
+        }
+
+        const mostRecentDate = events[0]?.date ?? null;
+        els.mostRecent.textContent = isToday(mostRecentDate) ? "Today" : formatDateLabel(mostRecentDate);
+        els.recentSummary.textContent = `${events.length}`;
+
+        els.recentTriples.innerHTML = events
+          .slice(0, 3)
+          .map((event) => {
+            const dayLabel = isToday(event.date)
+              ? "Today"
+              : formatDateLabel(event.date);
+            const timeLabel = event.gameTime
+              ? new Intl.DateTimeFormat(undefined, {
+                  hour: "numeric",
+                  minute: "2-digit",
+                }).format(new Date(event.gameTime))
+              : "--";
+            const venue = event.venue || "--";
+            const opponent = event.opponent || "--";
+            const locationBit = event.homeAway === "home" ? `vs. ${opponent}` : `at ${opponent}`;
+            const inningBit = event.inning ? `${event.inning}` : "";
+            const halfBit = event.half ? event.half : "";
+            return `
+              <li class="triple-item">
+                <div class="triple-main">
+                  <div class="triple-title">${dayLabel}</div>
+                  <div class="triple-time">${timeLabel}</div>
+                </div>
+                <p class="triple-desc">${event.description || `${player} tripled.`}</p>
+                <div class="triple-meta">
+                  ${locationBit} · ${venue}${inningBit ? ` · ${halfBit} ${inningBit}` : ""}
+                </div>
+              </li>
+            `;
+          })
+          .join("");
+
+        els.mostRecent.title = events[0]?.description || "";
+      }
+
+      function renderCareerTable(rows) {
+        if (!rows.length) {
+          els.careerTable.innerHTML = `
+            <tr>
+              <td colspan="3" class="empty">No data.</td>
+            </tr>
+          `;
+          return;
+        }
+
+        els.careerTable.innerHTML = rows
+          .map((row) => {
+            const teamText = row.teams.length ? row.teams.join(", ") : "Unknown team";
+            return `
+              <tr>
+                <td class="year">${row.season}</td>
+                <td class="team-list">${teamText}</td>
+                <td>${fmtNumber(row.triples)}</td>
+              </tr>
+            `;
+          })
+          .join("");
+      }
+
+      async function loadRecentTripleEvents(season, playerId) {
+        const gameLogUrl = `${MLB_BASE}/people/${playerId}/stats?stats=gameLog&group=hitting&season=${season}`;
+        const gameLogPayload = await fetchJson(gameLogUrl);
+        const splits = extractSplits(gameLogPayload);
+
+        const tripleGames = splits
+          .map((split, index) => {
+            const triples = statValue(split, "triples");
+            const gamePk = extractGamePk(split);
+            const date = extractSplitDate(split);
+            return {
+              split,
+              index,
+              triples,
+              gamePk,
+              date,
+            };
+          })
+          .filter((entry) => entry.triples > 0 && entry.gamePk && entry.date)
+          .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        if (!tripleGames.length) return [];
+
+        const gameEventGroups = await Promise.all(
+          tripleGames.map(async ({ split, gamePk, date }) => {
+            const feed = await fetchJson(`${MLB_BASE}/game/${gamePk}/feed/live`);
+            const gameData = feed?.gameData || {};
+            const livePlays = feed?.liveData?.plays?.allPlays || [];
+            const officialDate =
+              isoDateFromMaybe(gameData?.datetime?.officialDate) ||
+              isoDateFromMaybe(gameData?.officialDate) ||
+              date;
+            const gameTime = gameData?.datetime?.dateTime || null;
+            const venue = trimText(gameData?.venue?.name) || "";
+            const awayTeam = trimText(gameData?.teams?.away?.name) || "Away";
+            const homeTeam = trimText(gameData?.teams?.home?.name) || "Home";
+            const playerTeamId = split?.team?.id;
+            const isAway = playerTeamId && gameData?.teams?.away?.id === playerTeamId;
+            const isHome = playerTeamId && gameData?.teams?.home?.id === playerTeamId;
+            const opponent = isAway ? homeTeam : awayTeam;
+            const homeAway = isAway ? "away" : isHome ? "home" : "home";
+
+            const events = livePlays
+              .map((play, playIndex) => ({
+                play,
+                playIndex,
+              }))
+              .filter(({ play }) => {
+                const batterId = play?.matchup?.batter?.id;
+                if (batterId !== PERSON_ID) return false;
+                const eventName = String(play?.result?.event || "");
+                const eventType = String(play?.result?.eventType || "");
+                return /triple/i.test(eventName) || eventType.toLowerCase() === "triple";
+              })
+              .map(({ play, playIndex }) => ({
+                date: officialDate,
+                gameTime,
+                venue,
+                opponent,
+                homeAway,
+                inning: play?.about?.inning ? `${play.about.inning}` : "",
+                half: play?.about?.isTopInning ? "Top" : "Bottom",
+                description: trimText(play?.result?.description) || "Triple.",
+                playIndex,
+              }));
+
+            return events;
+          })
+        );
+
+        return gameEventGroups
+          .flat()
+          .sort((a, b) => {
+            const dateDiff = new Date(b.date) - new Date(a.date);
+            if (dateDiff !== 0) return dateDiff;
+            return (b.playIndex || 0) - (a.playIndex || 0);
+          });
+      }
+
+      async function loadData() {
+        if (loading) return;
+        loading = true;
+        clearError();
+          els.status.textContent = "Loading...";
+        els.refreshButton.disabled = true;
+
+        try {
+          const season = new Date().getFullYear();
+          els.seasonLabel.textContent = `Triples in ${season}`;
+
+          const profileUrl = `${MLB_BASE}/people/${PERSON_ID}`;
+          const seasonUrl = `${MLB_BASE}/people/${PERSON_ID}/stats?stats=season&group=hitting&season=${season}`;
+          const careerUrl = `${MLB_BASE}/people/${PERSON_ID}/stats?stats=career&group=hitting`;
+          const yearByYearUrl = `${MLB_BASE}/people/${PERSON_ID}/stats?stats=yearByYear&group=hitting`;
+
+          const [profileRes, seasonRes, careerRes, yearRes] = await Promise.allSettled([
+            fetchJson(profileUrl),
+            fetchJson(seasonUrl),
+            fetchJson(careerUrl),
+            fetchJson(yearByYearUrl),
+          ]);
+
+          const profile = profileRes.status === "fulfilled" ? profileRes.value?.people?.[0] : null;
+          const player = playerName(profile);
+          const teamName = currentTeamName(profile);
+
+          els.currentTeamPill.textContent = teamName;
+
+          const seasonTriples =
+            seasonRes.status === "fulfilled"
+              ? seasonTriplesFrom(seasonRes.value, season)
+              : 0;
+          const careerTriples =
+            careerRes.status === "fulfilled"
+              ? careerTriplesFrom(careerRes.value)
+              : 0;
+          const careerRows =
+            yearRes.status === "fulfilled" ? groupCareerByYear(yearRes.value) : [];
+
+          const seasonFallback = careerRows.find((row) => String(row.season) === String(season));
+          const summedCareer = careerRows.reduce((sum, row) => sum + row.triples, 0);
+
+          els.seasonTriples.textContent = fmtNumber(seasonTriples);
+          els.careerTriples.textContent = fmtNumber(careerTriples || summedCareer);
+          if (!seasonTriples && seasonFallback) {
+            els.seasonTriples.textContent = fmtNumber(seasonFallback.triples);
+          }
+
+          let recentEvents = [];
+          try {
+            recentEvents = await loadRecentTripleEvents(season, PERSON_ID);
+            renderRecentTriples(recentEvents, player, teamName, season);
+          } catch (recentError) {
+            console.error(recentError);
+            els.recentSummary.textContent = "--";
+            els.recentTriples.innerHTML = `
+              <li class="empty">No data.</li>
+            `;
+            els.mostRecent.textContent = "--";
+          }
+          renderCareerTable(careerRows);
+
+          lastLoadedAt = new Date();
+          els.lastChecked.textContent = new Intl.DateTimeFormat(undefined, {
+            hour: "numeric",
+            minute: "2-digit",
+            second: "2-digit",
+          }).format(lastLoadedAt);
+          els.status.textContent = `Updated ${timeAgoLabel(lastLoadedAt)}`;
+
+        } catch (error) {
+          console.error(error);
+          showError(
+            "MLB API unavailable."
+          );
+          els.status.textContent = "Load failed";
+          els.recentSummary.textContent = "--";
+          els.currentTeamPill.textContent = "--";
+          els.seasonTriples.textContent = "--";
+          els.careerTriples.textContent = "--";
+          els.mostRecent.textContent = "--";
+          els.recentTriples.innerHTML = `
+            <li class="empty">No data.</li>
+          `;
+          els.careerTable.innerHTML = `
+            <tr>
+              <td colspan="3" class="empty">No data.</td>
+            </tr>
+          `;
+        } finally {
+          els.refreshButton.disabled = false;
+          loading = false;
+        }
+      }
+
+      function scheduleAutoRefresh() {
+        if (refreshTimer) window.clearInterval(refreshTimer);
+        refreshTimer = window.setInterval(() => {
+          loadData();
+        }, AUTO_REFRESH_MS);
+      }
+
+      document.getElementById("refresh-button").addEventListener("click", () => {
+        loadData();
+      });
+
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible" && lastLoadedAt) {
+          const minutesSince = (Date.now() - lastLoadedAt.getTime()) / 60000;
+          if (minutesSince >= 4) {
+            loadData();
+          }
+        }
+      });
+
+      scheduleAutoRefresh();
+      loadData();
+    </script>
+  </body>
+</html>
