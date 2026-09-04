@@ -207,6 +207,10 @@
           margin-top: 0;
       }
 
+      .recent-block .triple-item:first-child {
+        border-top: 0;
+      }
+
       .latest-columns {
         display: grid;
         grid-template-columns: 48px minmax(0, 1fr) 150px;
@@ -220,6 +224,25 @@
         font-weight: 800;
         letter-spacing: 0.08em;
         text-transform: uppercase;
+      }
+
+      .latest-columns span:nth-child(2),
+      .latest-columns span:nth-child(3) {
+        width: 100%;
+        justify-self: stretch;
+        text-align: center;
+      }
+
+      .stack > .section:first-child .section-head {
+        height: 36px;
+        box-sizing: border-box;
+        margin-bottom: 0;
+      }
+
+      .stack > .section:first-child thead th {
+        height: 46px;
+        padding: 0;
+        vertical-align: middle;
       }
 
         .stack > .section:first-child {
@@ -609,16 +632,19 @@
       }
 
       .triple-item {
-        border-top: 1px solid var(--soft);
+        border-bottom: 1px solid var(--soft);
         height: 56px;
         box-sizing: border-box;
         padding: 7px 0;
+        display: flex;
+        align-items: center;
       }
 
       .triple-event-row {
         display: grid;
         grid-template-columns: 48px minmax(0, 1fr) 150px;
-        min-height: 42px;
+        width: 100%;
+        height: 42px;
         gap: 12px;
         align-items: center;
       }
@@ -628,6 +654,7 @@
         min-width: 0;
         color: var(--muted);
         font-size: 0.9rem;
+        text-align: center;
       }
 
       .triple-event-day {
@@ -669,7 +696,7 @@
 
       .triple-item:first-child {
         border-top: 0;
-        padding-top: 0;
+        padding-top: 7px;
       }
 
       .triple-main {
@@ -957,8 +984,12 @@
         .latest-columns {
           grid-template-columns: 42px minmax(0, 1fr) 104px;
           gap: 10px;
-          height: 40px;
+          height: 38px;
           font-size: 0.7rem;
+        }
+
+        .stack > .section:first-child thead th {
+          height: 38px;
         }
 
         .section-head,
@@ -1022,7 +1053,7 @@
             <div class="hero-art-spot" aria-label="Corbin Carroll">
               <img
                 class="hero-player-art"
-                src="corbinfancy.PNG?v=3"
+                src="./corbinfancy.png"
                 alt=""
                 aria-hidden="true"
               />
@@ -1060,7 +1091,7 @@
         <div class="stack">
           <section class="panel section" aria-labelledby="career-heading">
             <div class="section-head">
-                <h2 id="career-heading">By year</h2>
+                <h2 id="career-heading">By Year</h2>
             </div>
             <div class="table-wrap">
               <table>
@@ -1683,6 +1714,7 @@
       let canvasWidth = 0;
       let canvasHeight = 0;
       let speedParticles = [];
+      let numberFrameReady = false;
 
       function resizeSpeedCanvas() {
         const rect = kineticNumber.getBoundingClientRect();
@@ -1760,11 +1792,12 @@
         numberSceneContext.fillStyle = fill;
         numberSceneContext.fillRect(0, 0, canvasWidth, canvasHeight);
         numberSceneContext.restore();
+        numberFrameReady = true;
 
       }
 
       function animateSpeedCanvas() {
-        if (!canvasWidth || !canvasHeight || !numberScene.width || !numberScene.height) return;
+        if (!canvasWidth || !canvasHeight || !numberScene.width || !numberScene.height || !numberFrameReady) return;
         speedContext.clearRect(0, 0, canvasWidth, canvasHeight);
         speedContext.drawImage(numberScene, 0, 0, canvasWidth, canvasHeight);
       }
@@ -1784,6 +1817,13 @@
         resizeSpeedCanvas();
         initializeSpeedParticles();
         renderNumberScene();
+        animateSpeedCanvas();
+      });
+      window.addEventListener("load", () => {
+        resizeSpeedCanvas();
+        initializeSpeedParticles();
+        renderNumberScene();
+        animateSpeedCanvas();
       });
       if (window.ResizeObserver) {
         new ResizeObserver(() => {
