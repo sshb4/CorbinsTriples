@@ -640,12 +640,16 @@
         align-items: center;
       }
 
+      .triple-item.today .triple-event-row {
+        font-weight: 700;
+      }
+
       .triple-event-row {
         display: grid;
-        grid-template-columns: 48px minmax(0, 1fr) 150px;
+        grid-template-columns: 42px minmax(0, 1fr) 150px;
         width: 100%;
         height: 42px;
-        gap: 12px;
+        gap: 8px;
         align-items: center;
       }
 
@@ -653,7 +657,7 @@
       .triple-event-day {
         min-width: 0;
         color: var(--muted);
-        font-size: 0.9rem;
+        font-size: 1rem;
         text-align: center;
       }
 
@@ -790,7 +794,8 @@
       }
 
       .leaderboard-columns {
-        grid-template-columns: minmax(0, 1fr) 72px 72px;
+        column-gap: 2px;
+        grid-template-columns: minmax(0, 1fr) 68px 68px;
       }
 
       .leaderboard-stats {
@@ -799,7 +804,8 @@
 
       .leaderboard-career .leaderboard-list li {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) 72px 72px;
+        column-gap: 2px;
+        grid-template-columns: minmax(0, 1fr) 68px 68px;
         align-items: baseline;
       }
 
@@ -834,6 +840,13 @@
         text-align: center;
       }
 
+      .leaderboard-career .leaderboard-columns span:not(:first-child),
+      .leaderboard-career .leaderboard-list li > span:nth-child(2),
+      .leaderboard-career .leaderboard-list li > strong {
+        position: relative;
+        left: -18px;
+      }
+
       table {
         width: 100%;
         border-collapse: collapse;
@@ -842,19 +855,19 @@
 
       table th:nth-child(1),
       table td:nth-child(1) {
-        width: 18%;
+        width: 25%;
         text-align: center;
       }
 
       table th:nth-child(2),
       table td:nth-child(2) {
-        width: 56%;
+        width: 50%;
         text-align: center;
       }
 
       table th:nth-child(3),
       table td:nth-child(3) {
-        width: 26%;
+        width: 25%;
         text-align: center;
       }
 
@@ -894,6 +907,24 @@
       .mlb-leading {
         color: var(--accent);
         font-style: italic;
+      }
+
+      .leader-notes {
+        position: absolute;
+        top: 50%;
+        left: calc(50% + 20px);
+        display: inline-flex;
+        gap: 5px;
+        color: var(--muted);
+        font-size: 0.62rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        white-space: nowrap;
+        transform: translateY(-50%);
+      }
+
+      .leader-cell {
+        position: relative;
       }
 
       .error {
@@ -1080,7 +1111,7 @@
           </div>
           <div class="latest-columns" aria-hidden="true">
             <span></span>
-            <span>Team</span>
+            <span>Against</span>
             <span>Day</span>
           </div>
           <ol class="triples-list" id="recent-triples">
@@ -1860,7 +1891,7 @@
             const locationBit = event.homeAway === "home" ? `vs. ${opponent}` : `@ ${opponent}`;
             const logoUrl = teamLogoUrl(opponent);
             return `
-              <li class="triple-item">
+              <li class="triple-item${isToday(event.date) ? " today" : ""}">
                 <div class="triple-event-row">
                   ${logoUrl ? `<img class="opponent-logo" src="${logoUrl}" alt="${opponent} logo" loading="lazy" />` : `<span></span>`}
                   <div class="triple-event-team">${locationBit}</div>
@@ -1915,10 +1946,16 @@
               <tr>
                 <td class="year">${row.season}</td>
                 <td class="team-list">${teamText}</td>
-                <td><strong class="${[
-                  row.leagueLeader || row.mlbLeader ? "league-leading" : "",
-                  row.mlbLeader ? "mlb-leading" : "",
-                ].filter(Boolean).join(" ")}">${fmtNumber(row.triples)}</strong></td>
+                <td class="leader-cell">
+                  <strong class="${[
+                    row.leagueLeader || row.mlbLeader ? "league-leading" : "",
+                    row.mlbLeader ? "mlb-leading" : "",
+                  ].filter(Boolean).join(" ")}">${fmtNumber(row.triples)}</strong>${
+                    row.leagueLeader || row.mlbLeader
+                      ? `<span class="leader-notes" aria-label="${row.mlbLeader ? "MLB leader" : "NL leader"}"><span>Led ${row.mlbLeader ? "MLB" : "NL"}</span></span>`
+                      : ""
+                  }
+                </td>
               </tr>
             `;
           })
