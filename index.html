@@ -9,18 +9,26 @@
       content="Corbin Carroll triples."
     />
     <link rel="icon" type="image/png" href="corbin.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap"
+      rel="stylesheet"
+    />
     <style>
       :root {
         color-scheme: light;
-        --bg: #f6f5f1;
-        --panel: #ffffff;
-        --text: #161616;
-        --muted: #666666;
-        --line: #d9d5cc;
-        --soft: #eeebe3;
-        --accent: #0f766e;
-        --accent-soft: rgba(15, 118, 110, 0.1);
-        --shadow: 0 12px 30px rgba(24, 24, 24, 0.06);
+        --bg: #f4efe6;
+        --panel: rgba(255, 251, 244, 0.88);
+        --panel-solid: #fffaf2;
+        --text: #101010;
+        --muted: #6b6258;
+        --line: rgba(31, 31, 31, 0.12);
+        --soft: rgba(31, 31, 31, 0.08);
+        --accent: #a51d36;
+        --accent-deep: #641426;
+        --accent-soft: rgba(165, 29, 54, 0.1);
+        --shadow: 0 22px 60px rgba(34, 20, 15, 0.12);
       }
 
       * {
@@ -34,14 +42,43 @@
       }
 
       body {
+        position: relative;
         font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
           sans-serif;
         background:
-          radial-gradient(circle at top left, rgba(15, 118, 110, 0.08), transparent 24%),
-          radial-gradient(circle at top right, rgba(17, 24, 39, 0.05), transparent 22%),
+          radial-gradient(circle at top left, rgba(165, 29, 54, 0.14), transparent 23%),
+          radial-gradient(circle at top right, rgba(20, 20, 20, 0.08), transparent 20%),
+          radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.65), transparent 36%),
           var(--bg);
         color: var(--text);
         line-height: 1.45;
+        background-attachment: fixed;
+      }
+
+      body::before {
+        position: fixed;
+        inset: 0 0 auto;
+        z-index: 20;
+        height: 4px;
+        background: linear-gradient(90deg, transparent, rgba(165, 29, 54, .62) 18%, rgba(165, 29, 54, .2) 72%, transparent);
+        content: "";
+        pointer-events: none;
+      }
+
+      body::after {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.16'/%3E%3C/svg%3E");
+        mix-blend-mode: multiply;
+        opacity: .16;
+        content: "";
+        pointer-events: none;
+      }
+
+      .wrap {
+        position: relative;
+        z-index: 1;
       }
 
       a {
@@ -49,9 +86,9 @@
       }
 
       .wrap {
-        width: min(1080px, calc(100% - 32px));
+        width: min(1080px, calc(100% - 24px));
         margin: 0 auto;
-        padding: 28px 0 40px;
+        padding: 22px 0 40px;
       }
 
       .eyebrow {
@@ -62,26 +99,53 @@
       }
 
       .toolbar {
+        display: none;
+      }
+
+      .hero-status {
         display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
+        justify-content: flex-end;
         align-items: center;
-        margin-bottom: 18px;
+        gap: 10px;
+        min-height: 22px;
+        margin: -4px 0 2px;
+        color: var(--muted);
+        font-size: 0.78rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .hero-refresh {
+        width: 30px;
+        height: 30px;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        box-shadow: none;
+        color: var(--text);
+        font-size: 1.45rem;
+        line-height: 1;
+      }
+
+      .hero-refresh:hover {
+        border: 0;
+        color: var(--accent);
       }
 
       button {
         appearance: none;
-        border: 1px solid var(--line);
-        background: var(--panel);
+        border: 1px solid rgba(31, 31, 31, 0.12);
+        background: linear-gradient(180deg, #fff, #f4ede3);
         color: var(--text);
         border-radius: 999px;
         padding: 10px 14px;
         font: inherit;
         cursor: pointer;
+        box-shadow: 0 8px 20px rgba(34, 20, 15, 0.06);
       }
 
       button:hover {
-        border-color: #bdb6aa;
+        border-color: rgba(165, 29, 54, 0.34);
       }
 
       button:focus-visible {
@@ -96,7 +160,7 @@
 
       .grid {
         display: grid;
-        grid-template-columns: 1.15fr 1fr;
+        grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
         gap: 16px;
         margin-top: 18px;
       }
@@ -106,40 +170,259 @@
         gap: 16px;
       }
 
+      @media (min-width: 861px) {
+        .hero {
+          grid-column: 1 / -1;
+        }
+
+        .hero-visual {
+          width: 103%;
+          transform: translateX(-3%);
+        }
+
+        .hero-art-spot,
+        .kpis {
+          transform: translateX(-2vw);
+        }
+
+        .stack {
+          display: contents;
+        }
+
+        .recent-block {
+          grid-column: 1;
+          grid-row: 2;
+          margin-top: 0;
+        }
+
+        .recent-block .section-head {
+          height: 58px;
+          box-sizing: border-box;
+          padding-bottom: 10px;
+          border-bottom: 0;
+          margin-bottom: 0;
+        }
+
+        .recent-block .triples-list {
+          margin-top: 10px;
+        }
+
+        .stack > .section:first-child {
+          grid-column: 2;
+          grid-row: 2;
+        }
+
+        .stack > .section:last-child {
+          grid-column: 1 / -1;
+          grid-row: 3;
+          width: min(100%, 720px);
+          margin: 32px auto 0;
+        }
+      }
+
       .panel {
-        background: rgba(255, 255, 255, 0.84);
-        border: 1px solid rgba(217, 213, 204, 0.92);
-        border-radius: 20px;
-        box-shadow: var(--shadow);
-        backdrop-filter: blur(8px);
+        background: transparent;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+        backdrop-filter: none;
       }
 
       .hero {
-        padding: 20px;
+        padding: 0;
+        overflow: visible;
       }
 
-      .hero-top {
+      .hero-visual {
+        display: grid;
+        grid-template-columns: 58% 42%;
+        align-items: center;
+        min-height: 320px;
+      }
+
+      .hero-art-spot {
+        position: relative;
+        z-index: 0;
+        grid-column: 2;
+        grid-row: 1;
+        width: 100%;
+        min-height: 270px;
+        overflow: visible;
+      }
+
+      .hero-player-art {
+        display: block;
+        width: 100%;
+        height: 285px;
+        margin: 8px 0 0;
+        object-fit: contain;
+        object-position: left bottom;
+        filter: drop-shadow(0 22px 12px rgba(34, 20, 15, 0.22));
+        transform: none;
+        pointer-events: none;
+        user-select: none;
+      }
+
+      .triple-hero {
+        position: relative;
+        z-index: 1;
+        grid-column: 1;
+        grid-row: 1;
+        width: 100%;
+        margin: 0 auto;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      .triple-kicker {
+        margin: 0 0 -4px 4px;
+        color: #7a746d;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0.17em;
+        text-transform: uppercase;
+      }
+
+      .kinetic-number {
+        --number-size: clamp(150px, 25vw, 360px);
+        position: relative;
+        width: 100%;
+        height: 360px;
+        overflow: visible;
         display: flex;
+        align-items: center;
+        justify-content: center;
+        isolation: isolate;
+      }
+
+      #speed-canvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        pointer-events: none;
+      }
+
+      .number-wrap {
+        position: relative;
+        z-index: 2;
+        width: max-content;
+        height: max-content;
+        display: none;
+        transform: skewX(-7deg) rotate(-2deg);
+        filter: drop-shadow(0 16px 18px rgba(0, 0, 0, 0.3));
+        animation: number-float 3.2s ease-in-out infinite;
+      }
+
+      .number-main,
+      .number-highlight,
+      .number-ghost {
+        font-family: "Bebas Neue", Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+        font-size: var(--number-size);
+        line-height: .78;
+        font-weight: 900;
+        letter-spacing: -.025em;
+        user-select: none;
+        white-space: nowrap;
+      }
+
+      .number-main {
+        background: linear-gradient(to bottom, #000 0%, #050505 25%, #260008 48%, #700012 73%, #b30b27 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        -webkit-text-stroke: 2px rgba(0, 0, 0, .9);
+        text-shadow: 0 4px 0 #000, 0 8px 0 rgba(0, 0, 0, .65), 0 15px 25px rgba(0, 0, 0, .35);
+      }
+
+      .number-highlight,
+      .number-ghost,
+      .number-trail {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+      }
+
+      .number-highlight {
+        background: linear-gradient(105deg, transparent 0%, rgba(255, 255, 255, .02) 35%, rgba(255, 255, 255, .2) 47%, transparent 52%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        mix-blend-mode: screen;
+        animation: highlight-sweep 2.8s ease-in-out infinite;
+      }
+
+      .number-ghost {
+        color: transparent;
+        -webkit-text-stroke: 1px rgba(150, 0, 25, .3);
+        opacity: .16;
+        filter: blur(1px);
+        animation: ghost-move 1.1s ease-out infinite;
+      }
+
+      .ghost-two { animation-delay: .12s; opacity: .09; filter: blur(3px); }
+
+      .number-trail {
+        left: -15%;
+        top: 50%;
+        width: 150%;
+        height: 2px;
+        transform-origin: right center;
+        background: linear-gradient(90deg, transparent, rgba(100, 0, 15, .08) 35%, rgba(170, 5, 30, .45) 72%, rgba(255, 30, 55, .8));
+        filter: blur(1px);
+        opacity: 0;
+        animation: speed-trail 2.25s ease-out infinite;
+      }
+
+      .trail-two { transform: translateY(5px) rotate(-4deg); height: 4px; filter: blur(2px); animation-delay: .2s; animation-duration: 1.9s; }
+      .trail-three { transform: translateY(65px) rotate(-3deg); height: 1px; animation-delay: .45s; animation-duration: 2.8s; }
+
+      @keyframes speed-trail {
+        0% { opacity: 0; transform: translateX(100px) translateY(-30px) scaleX(.15) rotate(-4deg); }
+        15% { opacity: .9; }
+        70% { opacity: .45; }
+        100% { opacity: 0; transform: translateX(-220px) translateY(-30px) scaleX(1) rotate(-4deg); }
+      }
+
+      @keyframes ghost-move {
+        0% { transform: translateX(10px) scaleX(1); opacity: 0; }
+        20% { opacity: .2; }
+        100% { transform: translateX(-80px) scaleX(1.08); opacity: 0; }
+      }
+
+      @keyframes number-float {
+        0%, 100% { transform: skewX(-7deg) rotate(-2deg) translateY(0); }
+        50% { transform: skewX(-7deg) rotate(-1deg) translateY(-5px); }
+      }
+
+      @keyframes highlight-sweep {
+        0%, 20%, 100% { opacity: 0; transform: translateX(-20%); }
+        50% { opacity: .8; }
+        75% { opacity: 0; transform: translateX(20%); }
+      }
+
+      .hero-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
         justify-content: space-between;
-        gap: 16px;
-        align-items: start;
-        margin-bottom: 18px;
+        align-items: center;
+        padding-top: 0;
+        margin-top: 0;
       }
 
-      .big-number {
-        font-size: clamp(3.2rem, 10vw, 6.4rem);
-        line-height: 0.9;
-        letter-spacing: -0.06em;
-        font-weight: 700;
-      }
-
-      .big-label {
-        margin-top: 8px;
-        font-size: 0.95rem;
+      .hero-copy {
         color: var(--muted);
+        font-size: 0.94rem;
       }
 
-      .pill {
+      .hero-copy strong {
+        color: var(--text);
+      }
+
+      .hero-chip {
         display: inline-flex;
         align-items: center;
         gap: 8px;
@@ -147,22 +430,86 @@
         border-radius: 999px;
         background: var(--accent-soft);
         color: var(--accent);
-        font-size: 0.88rem;
-        font-weight: 600;
+        font-size: 0.84rem;
+        font-weight: 700;
+        letter-spacing: 0.03em;
         white-space: nowrap;
       }
 
       .kpis {
+        position: relative;
+        z-index: 2;
         display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: minmax(220px, 1fr);
+        width: min(58%, 380px);
+        margin-left: auto;
+        margin-right: 6%;
+        margin-top: -52px;
         gap: 12px;
       }
 
       .kpi {
-        border: 1px solid var(--soft);
-        border-radius: 16px;
+        border: 1px solid rgba(31, 31, 31, 0.08);
+        border-radius: 18px;
         padding: 14px;
-        background: linear-gradient(180deg, #fff, #faf8f3);
+        background: linear-gradient(180deg, #fff, #fbf5ec);
+      }
+
+      .kpi-accent {
+        position: relative;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        grid-template-rows: auto auto auto;
+        min-height: 92px;
+        border-color: transparent;
+        border-radius: 14px;
+        padding: 14px 16px;
+        background: linear-gradient(145deg, #c52342, #8f142e);
+        color: #fffaf2;
+        box-shadow: 0 14px 28px rgba(165, 29, 54, 0.2);
+        overflow: hidden;
+      }
+
+      .kpi-accent::before {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(110deg, rgba(255, 255, 255, .12), transparent 38%);
+        content: "";
+        pointer-events: none;
+      }
+
+      .kpi-accent > * {
+        position: relative;
+        z-index: 1;
+      }
+
+      .career-bars {
+        grid-column: 2;
+        grid-row: 1 / -1;
+        align-self: end;
+        display: flex;
+        align-items: end;
+        gap: 5px;
+        height: 54px;
+        margin-left: 18px;
+        opacity: .42;
+      }
+
+      .career-bars span {
+        display: block;
+        width: 7px;
+        background: rgba(70, 0, 12, .72);
+      }
+
+      .career-bars span:nth-child(1) { height: 12px; }
+      .career-bars span:nth-child(2) { height: 22px; }
+      .career-bars span:nth-child(3) { height: 32px; }
+      .career-bars span:nth-child(4) { height: 43px; }
+      .career-bars span:nth-child(5) { height: 54px; }
+
+      .kpi-accent .kpi-label,
+      .kpi-accent .kpi-sub {
+        color: rgba(255, 250, 242, 0.76);
       }
 
       .kpi-label {
@@ -186,19 +533,34 @@
       }
 
       .section {
-        padding: 18px 20px 20px;
+        padding: 0;
       }
 
       .recent-block {
-        margin-top: 18px;
-        padding-top: 18px;
-        border-top: 1px solid var(--soft);
+        margin-top: 0;
+        padding-top: 0;
+        border-top: 0;
       }
 
-      .section h2 {
+      .section h2,
+      .recent-block h2 {
+        position: relative;
         margin: 0 0 8px;
         font-size: 1.05rem;
+        font-weight: 800;
         letter-spacing: -0.02em;
+      }
+
+      .section h2::after,
+      .recent-block h2::after {
+        position: absolute;
+        left: 0;
+        bottom: -7px;
+        width: 28px;
+        height: 3px;
+        border-radius: 999px;
+        background: var(--accent);
+        content: "";
       }
 
       .section-head {
@@ -207,6 +569,11 @@
         gap: 16px;
         align-items: baseline;
         margin-bottom: 12px;
+      }
+
+      .recent-block,
+      .stack > .section {
+        min-width: 0;
       }
 
       .subtle {
@@ -219,12 +586,55 @@
         padding: 0;
         margin: 0;
         display: grid;
-        gap: 12px;
+        gap: 0;
       }
 
       .triple-item {
         border-top: 1px solid var(--soft);
-        padding-top: 12px;
+        height: 58px;
+        box-sizing: border-box;
+        padding: 8px 0;
+      }
+
+      .triple-event-row {
+        display: grid;
+        grid-template-columns: 48px minmax(0, 1fr);
+        min-height: 42px;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .triple-event-copy {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+      }
+
+      .triple-event-details {
+        min-width: 0;
+      }
+
+      .triple-event-details strong,
+      .triple-event-details span {
+        display: block;
+      }
+
+      .triple-event-details strong {
+        font-size: 0.94rem;
+      }
+
+      .triple-event-details span {
+        margin-top: 2px;
+        color: var(--muted);
+        font-size: 0.82rem;
+      }
+
+      .opponent-logo {
+        display: block;
+        width: 42px;
+        height: 42px;
+        object-fit: contain;
       }
 
       .triple-item:first-child {
@@ -261,15 +671,16 @@
 
       .leaderboard-grid {
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: minmax(190px, 230px) minmax(0, 1fr);
         gap: 12px;
+        align-items: start;
       }
 
       .leaderboard-card {
-        border: 1px solid var(--soft);
-        border-radius: 16px;
+        border: 1px solid rgba(31, 31, 31, 0.08);
+        border-radius: 18px;
         padding: 14px;
-        background: linear-gradient(180deg, #fff, #faf8f3);
+        background: linear-gradient(180deg, #fff, #fbf5ec);
       }
 
       .leaderboard-rank {
@@ -307,6 +718,13 @@
         text-align: center;
       }
 
+      .leaderboard-disclaimer {
+        margin: 12px 2px 0;
+        color: var(--muted);
+        font-size: 0.78rem;
+        text-align: center;
+      }
+
       .leaderboard-columns,
       .leaderboard-stats {
         display: grid;
@@ -315,11 +733,30 @@
       }
 
       .leaderboard-columns {
-        grid-template-columns: minmax(0, 1fr) auto auto;
+        grid-template-columns: minmax(0, 1fr) 72px 72px;
       }
 
       .leaderboard-stats {
         grid-template-columns: auto auto;
+      }
+
+      .leaderboard-career .leaderboard-list li {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 72px 72px;
+        align-items: baseline;
+      }
+
+      .leaderboard-career .leaderboard-list li > span {
+        min-width: 0;
+      }
+
+      .leaderboard-career .leaderboard-stats {
+        display: none;
+      }
+
+      .leaderboard-career .leaderboard-list .ellipsis {
+        display: block;
+        grid-column: 1 / -1;
       }
 
       .leaderboard-columns {
@@ -334,9 +771,34 @@
         min-width: 0;
       }
 
+      .leaderboard-columns span:not(:first-child),
+      .leaderboard-career .leaderboard-list li > span:nth-child(2),
+      .leaderboard-career .leaderboard-list li > strong {
+        text-align: center;
+      }
+
       table {
         width: 100%;
         border-collapse: collapse;
+        table-layout: fixed;
+      }
+
+      table th:nth-child(1),
+      table td:nth-child(1) {
+        width: 18%;
+        text-align: center;
+      }
+
+      table th:nth-child(2),
+      table td:nth-child(2) {
+        width: 56%;
+        text-align: center;
+      }
+
+      table th:nth-child(3),
+      table td:nth-child(3) {
+        width: 26%;
+        text-align: center;
       }
 
       thead th {
@@ -346,13 +808,17 @@
         text-transform: uppercase;
         color: var(--muted);
         padding: 10px 0;
-        border-bottom: 1px solid var(--soft);
+        border-bottom: 1px solid rgba(31, 31, 31, 0.08);
       }
 
       tbody td {
-        padding: 12px 0;
-        border-bottom: 1px solid var(--soft);
-        vertical-align: top;
+        padding: 9px 0;
+        border-bottom: 1px solid rgba(31, 31, 31, 0.08);
+        vertical-align: middle;
+      }
+
+      tbody tr {
+        height: 58px;
       }
 
       .year {
@@ -365,10 +831,10 @@
 
       .error {
         margin-top: 16px;
-        border: 1px solid rgba(185, 28, 28, 0.22);
-        background: rgba(254, 242, 242, 0.88);
+        border: 1px solid rgba(165, 29, 54, 0.18);
+        background: rgba(255, 241, 242, 0.9);
         color: #7f1d1d;
-        border-radius: 16px;
+        border-radius: 18px;
         padding: 14px 16px;
       }
 
@@ -383,31 +849,88 @@
       }
 
       @media (max-width: 860px) {
-        .grid {
+        .grid,
+        .kpis,
+        .leaderboard-grid {
           grid-template-columns: 1fr;
+        }
+
+        .kpis {
+          width: 100%;
+          margin-left: 0;
+          margin-right: 0;
+          margin-top: 0;
+          transform: none;
         }
       }
 
       @media (max-width: 640px) {
         .wrap {
-          width: min(100% - 20px, 1080px);
+          width: min(100% - 16px, 1080px);
           padding-top: 16px;
         }
 
-        .hero-top,
+        .hero-visual {
+          grid-template-columns: 1fr;
+          min-height: 0;
+          gap: 0;
+        }
+
+        .hero-art-spot {
+          grid-column: 1;
+          grid-row: 2;
+          width: 100%;
+          min-height: 190px;
+        }
+
+        .hero-player-art {
+          width: 100%;
+          height: 200px;
+          margin: 0 auto;
+          object-position: center bottom;
+        }
+
+        .hero-status {
+          margin-top: -2px;
+        }
+
+        .kinetic-number {
+          height: 240px;
+        }
+
+        .number-main,
+        .number-highlight,
+        .number-ghost {
+          font-size: clamp(120px, 32vw, 190px);
+        }
+
+        #triple-svg {
+          width: 100%;
+          margin-left: 0;
+        }
+
+        .triple-event-row {
+          grid-template-columns: 48px 1fr;
+          gap: 10px;
+        }
+
         .section-head,
         .triple-main {
           flex-direction: column;
           align-items: flex-start;
         }
+      }
 
-        .kpis {
-          grid-template-columns: 1fr;
-        }
-
-        .leaderboard-grid {
-          grid-template-columns: 1fr;
-        }
+      .visually-hidden {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
       }
     </style>
   </head>
@@ -415,40 +938,71 @@
     <div class="wrap">
       <main class="grid">
         <section class="panel hero" aria-label="Current season triples">
-          <div class="hero-top">
-            <div>
-              <div class="big-number" id="season-triples">--</div>
-              <div class="big-label" id="season-label">Triples in 2026</div>
-            </div>
+          <div class="hero-status">
+            <span id="status">Loading...</span>
+            <button
+              id="refresh-button"
+              class="hero-refresh"
+              type="button"
+              aria-label="Refresh MLB data"
+              title="Refresh MLB data"
+            >&#8635;</button>
           </div>
+          <div class="hero-visual">
+            <div class="triple-hero">
+              <div class="triple-kicker" id="season-label">TRIPLES IN 2026</div>
 
-          <div class="toolbar">
-            <button id="refresh-button" type="button">Refresh</button>
-            <div class="meta" id="status">Loading...</div>
+            <div class="kinetic-number" id="kinetic-number" aria-label="0 triples in 2026">
+              <canvas id="speed-canvas" aria-hidden="true"></canvas>
+              <div class="number-wrap">
+                <div class="number-trail trail-one"></div>
+                <div class="number-trail trail-two"></div>
+                <div class="number-trail trail-three"></div>
+                <div class="number-ghost ghost-one" aria-hidden="true">0</div>
+                <div class="number-ghost ghost-two" aria-hidden="true">0</div>
+                <div class="number-main" id="number-main">0</div>
+                <div class="number-highlight" id="number-highlight" aria-hidden="true">0</div>
+              </div>
+            </div>
+
+              <div class="hero-meta">
+                <div class="hero-copy">
+                  <strong id="season-triples" class="visually-hidden">0</strong>
+                </div>
+              </div>
+            </div>
+
+            <div class="hero-art-spot" aria-label="Corbin Carroll">
+              <img
+                class="hero-player-art"
+                src="corbinfancy.png"
+                alt=""
+                aria-hidden="true"
+              />
+            </div>
           </div>
 
           <div class="kpis" aria-label="Snapshot numbers">
-            <div class="kpi">
+            <div class="kpi kpi-accent">
               <div class="kpi-label">Career</div>
               <div class="kpi-value" id="career-triples">--</div>
               <div class="kpi-sub" id="career-seasons-main">-- seasons</div>
-            </div>
-            <div class="kpi">
-              <div class="kpi-label">Checked</div>
-              <div class="kpi-value" id="last-checked">--</div>
+              <div class="career-bars" aria-hidden="true">
+                <span></span><span></span><span></span><span></span><span></span>
+              </div>
             </div>
           </div>
 
-          <section class="recent-block" aria-labelledby="recent-heading">
-            <div class="section-head">
-              <h2 id="recent-heading">Latest</h2>
-            </div>
-            <ol class="triples-list" id="recent-triples">
-              <li class="empty">...</li>
-            </ol>
-          </section>
-
           <div class="error" id="error" hidden></div>
+        </section>
+
+        <section class="recent-block" aria-labelledby="recent-heading">
+          <div class="section-head">
+            <h2 id="recent-heading">Latest</h2>
+          </div>
+          <ol class="triples-list" id="recent-triples">
+            <li class="empty">...</li>
+          </ol>
         </section>
 
         <div class="stack">
@@ -477,7 +1031,6 @@
           <section class="panel section" aria-labelledby="leaderboard-heading">
             <div class="section-head">
               <h2 id="leaderboard-heading">Leaderboard</h2>
-              <div class="subtle">Triples</div>
             </div>
             <div class="leaderboard-grid">
               <div class="leaderboard-card">
@@ -486,7 +1039,7 @@
                   <li class="empty">...</li>
                 </ol>
               </div>
-              <div class="leaderboard-card">
+              <div class="leaderboard-card leaderboard-career">
                 <div class="kpi-label">Career</div>
                 <div class="leaderboard-columns">
                   <span>Player</span>
@@ -498,6 +1051,9 @@
                 </ol>
               </div>
             </div>
+            <p class="leaderboard-disclaimer">
+              Rankings use official MLB Stats API data and may differ from other sources.
+            </p>
           </section>
         </div>
       </main>
@@ -514,7 +1070,6 @@
         seasonLabel: document.getElementById("season-label"),
         careerTriples: document.getElementById("career-triples"),
         careerSeasonsMain: document.getElementById("career-seasons-main"),
-        lastChecked: document.getElementById("last-checked"),
         recentTriples: document.getElementById("recent-triples"),
         careerTable: document.getElementById("career-table"),
         seasonRankLabel: document.getElementById("season-rank-label"),
@@ -524,7 +1079,24 @@
         refreshButton: document.getElementById("refresh-button"),
       };
 
+      const kineticNumber = document.getElementById("kinetic-number");
+      const speedCanvas = document.getElementById("speed-canvas");
+      const speedContext = speedCanvas.getContext("2d");
+      const numberMain = document.getElementById("number-main");
+      const numberHighlight = document.getElementById("number-highlight");
+      const numberGhosts = [...kineticNumber.querySelectorAll(".number-ghost")];
+      const numberScene = document.createElement("canvas");
+      const numberSceneContext = numberScene.getContext("2d");
+
+      // Kept as null guards for the legacy SVG drawing helpers below.
+      const tripleSvg = null;
+      const heroNumber = null;
+      const clipNumber = null;
+      const speedGroup = null;
+      const insideSpeed = null;
+
       let refreshTimer = null;
+      let statusTimer = null;
       let loading = false;
       let lastLoadedAt = null;
 
@@ -576,7 +1148,7 @@
         const when = new Date(value);
         if (Number.isNaN(when.getTime())) return "--";
         const diff = Date.now() - when.getTime();
-        const minutes = Math.max(0, Math.round(diff / 60000));
+        const minutes = Math.max(0, Math.floor(diff / 60000));
         if (minutes < 1) return "just now";
         if (minutes < 60) return `${minutes}m ago`;
         const hours = Math.round(minutes / 60);
@@ -611,6 +1183,41 @@
           return await response.json();
         } finally {
           window.clearTimeout(timeout);
+        }
+      }
+
+      async function fetchAllStats(url) {
+        const firstPage = await fetchJson(url);
+        const firstStats = Array.isArray(firstPage.stats) ? firstPage.stats[0] : null;
+        const firstSplits = extractSplits(firstPage);
+        const totalSplits = parseNumber(firstStats?.totalSplits);
+
+        if (!totalSplits || firstSplits.length >= totalSplits) return firstPage;
+
+        try {
+          const pageSize = Math.max(firstSplits.length, 500);
+          const pageCount = Math.ceil((totalSplits - firstSplits.length) / pageSize);
+          const pageUrls = Array.from({ length: pageCount }, (_, pageIndex) => {
+            const pageUrl = new URL(url);
+            pageUrl.searchParams.set("offset", firstSplits.length + pageIndex * pageSize);
+            pageUrl.searchParams.set("limit", pageSize);
+            return pageUrl.toString();
+          });
+          const pages = await Promise.all(pageUrls.map((pageUrl) => fetchJson(pageUrl)));
+          const allSplits = [
+            ...firstSplits,
+            ...pages.flatMap((page) => extractSplits(page)),
+          ];
+
+          return {
+            ...firstPage,
+            stats: firstPage.stats.map((stat, index) =>
+              index === 0 ? { ...stat, splits: allSplits } : stat
+            ),
+          };
+        } catch (error) {
+          console.warn("Could not load all leaderboard pages; using first page", error);
+          return firstPage;
         }
       }
 
@@ -671,6 +1278,44 @@
         );
       }
 
+      const TEAM_LOGO_IDS = {
+        "Arizona Diamondbacks": 109,
+        "Atlanta Braves": 144,
+        "Baltimore Orioles": 110,
+        "Boston Red Sox": 111,
+        "Chicago Cubs": 112,
+        "Chicago White Sox": 145,
+        "Cincinnati Reds": 113,
+        "Cleveland Guardians": 114,
+        "Colorado Rockies": 115,
+        "Detroit Tigers": 116,
+        "Houston Astros": 117,
+        "Kansas City Royals": 118,
+        "Los Angeles Angels": 108,
+        "Los Angeles Dodgers": 119,
+        "Miami Marlins": 146,
+        "Milwaukee Brewers": 158,
+        "Minnesota Twins": 142,
+        "New York Mets": 121,
+        "New York Yankees": 147,
+        "Oakland Athletics": 133,
+        "Philadelphia Phillies": 143,
+        "Pittsburgh Pirates": 134,
+        "San Diego Padres": 135,
+        "San Francisco Giants": 137,
+        "Seattle Mariners": 136,
+        "St. Louis Cardinals": 138,
+        "Tampa Bay Rays": 139,
+        "Texas Rangers": 140,
+        "Toronto Blue Jays": 141,
+        "Washington Nationals": 120,
+      };
+
+      function teamLogoUrl(teamName) {
+        const teamId = TEAM_LOGO_IDS[teamName];
+        return teamId ? `https://www.mlbstatic.com/team-logos/${teamId}.svg` : "";
+      }
+
       function extractPlayerId(split) {
         return split?.player?.id ?? split?.person?.id ?? split?.playerId ?? null;
       }
@@ -694,10 +1339,25 @@
           .filter((row) => row.playerId || row.playerName);
 
         rows.sort((a, b) => b.triples - a.triples);
-        const rankedRows = rows.map((row, index) => ({
-          ...row,
-          rank: index + 1,
-        }));
+        const scoreCounts = new Map();
+        for (const row of rows) {
+          scoreCounts.set(row.triples, (scoreCounts.get(row.triples) || 0) + 1);
+        }
+
+        // Use competition ranking: tied positions share a rank and the next
+        // rank skips the number of players in the tie.
+        let previousTriples = null;
+        let previousRank = 0;
+        const rankedRows = rows.map((row, index) => {
+          const rank = row.triples === previousTriples ? previousRank : index + 1;
+          previousTriples = row.triples;
+          previousRank = rank;
+          return {
+            ...row,
+            rank,
+            tied: scoreCounts.get(row.triples) > 1,
+          };
+        });
         const index = rankedRows.findIndex(
           (row) =>
             String(row.playerId) === String(playerId) ||
@@ -706,7 +1366,7 @@
         if (index < 0) return null;
 
         return {
-          rank: index + 1,
+          rank: rankedRows[index].rank,
           rows:
             index < 10
               ? rankedRows.slice(0, 10)
@@ -750,14 +1410,15 @@
             const current =
               String(row.playerId) === String(PERSON_ID) ||
               row.playerName === player;
+            const rankLabel = row.tied
+              ? `T-${fmtNumber(row.rank)}`
+              : `#${fmtNumber(row.rank)}`;
             return `
               <li class="${current ? "current" : ""}">
-                <span>#${fmtNumber(row.rank)} ${row.playerName}</span>
+                <span>${rankLabel} ${row.playerName}</span>
                 ${
                   showSeasons
-                    ? `<div class="leaderboard-stats"><span>${
-                        row.seasons == null ? "--" : `${row.seasons}`
-                      }</span><strong>${fmtNumber(row.triples)}</strong></div>`
+                    ? `<span>${row.seasons == null ? "--" : `${row.seasons}`}</span><strong>${fmtNumber(row.triples)}</strong>`
                     : `<strong>${fmtNumber(row.triples)}</strong>`
                 }
               </li>
@@ -804,6 +1465,294 @@
           }));
       }
 
+      function makeStroke(startX, startY, endX, endY, thickness, opacity, gradient) {
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        const curve = (startY - endY) * 0.28;
+        path.setAttribute(
+          "d",
+          `M ${startX} ${startY} C ${startX + (endX - startX) * 0.3} ${startY + curve} ${startX + (endX - startX) * 0.72} ${endY - curve} ${endX} ${endY}`
+        );
+        path.setAttribute("fill", "none");
+        path.setAttribute("stroke", gradient);
+        path.setAttribute("stroke-width", thickness);
+        path.setAttribute("stroke-linecap", "round");
+        path.setAttribute("opacity", opacity);
+        path.classList.add("motion-stroke");
+        return path;
+      }
+
+      function drawGraphic() {
+        if (!heroNumber || !clipNumber || !speedGroup || !insideSpeed) return;
+
+        speedGroup.innerHTML = "";
+        insideSpeed.innerHTML = "";
+
+        const box = heroNumber.getBBox();
+        const digits = heroNumber.textContent.length;
+        const left = box.x;
+        const right = box.x + box.width;
+        const top = box.y;
+        const height = box.height;
+        const width = box.width;
+        const expansion = digits === 1 ? 235 : digits === 2 ? 185 : digits === 3 ? 135 : 105;
+        const strokes = [
+          [.18, 1, 3.8, .52], [.25, .64, 1.7, .42], [.33, .88, 3, .58],
+          [.41, .47, 1.25, .34], [.49, .76, 2.3, .49], [.57, .57, 1.5, .38],
+          [.64, .91, 2.7, .52], [.72, .43, 1.15, .3], [.8, .7, 2, .4], [.87, .36, .95, .24],
+        ];
+
+        strokes.forEach(([position, lengthScale, thickness, opacity], index) => {
+          const y = top + height * position;
+          const length = expansion * lengthScale;
+          const stagger = Math.sin(index * 2.31) * width * .018;
+          const startX = left + width * (.08 + (index % 3) * .035) + stagger;
+          const endX = right + length * (.62 + (index % 3) * .12);
+          speedGroup.appendChild(makeStroke(
+            startX,
+            y,
+            endX,
+            y + Math.sin(index * 1.73) * 3,
+            thickness,
+            opacity,
+            index > 5 ? "url(#red-speed-gradient)" : "url(#speed-gradient)"
+          ));
+        });
+
+        for (let i = 0; i < 10; i++) {
+          const progress = i / 9;
+          const y = top + height * (0.28 + progress * 0.5);
+          const startX = left + width * (0.16 + progress * 0.08);
+          const length = expansion * (1.15 - progress * 0.2);
+          speedGroup.appendChild(makeStroke(
+            startX,
+            y,
+            right + length,
+            y - 4 + Math.sin(i * 1.8) * 3,
+            1.4 + (1 - progress) * 2.8,
+            0.28 + (1 - progress) * 0.32,
+            i % 3 === 0 ? "url(#speed-gradient)" : "url(#red-speed-gradient)"
+          ));
+        }
+
+        [
+          [.29, 1.45, 1.35, .34, -7],
+          [.46, 1.22, 4.3, .34, 5],
+          [.59, 1.38, 1.15, .27, -4],
+          [.75, 1.15, 2.8, .3, 6],
+        ].forEach(([position, lengthScale, thickness, opacity, bend]) => {
+          const y = top + height * position;
+          const length = expansion * lengthScale;
+          const startX = left + width * .06;
+          const endX = right + length * .82;
+          const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+          path.setAttribute(
+            "d",
+            `M ${startX} ${y} C ${startX + length * .3} ${y + bend} ${startX + length * .72} ${y - bend} ${endX} ${y}`
+          );
+          path.setAttribute("fill", "none");
+          path.setAttribute("stroke", "url(#red-speed-gradient)");
+          path.setAttribute("stroke-width", thickness);
+          path.setAttribute("stroke-linecap", "round");
+          path.setAttribute("opacity", opacity);
+          path.classList.add("motion-stroke");
+          speedGroup.appendChild(path);
+        });
+
+        for (let i = 0; i < 17; i++) {
+          const y = top + height * (.12 + (i / 16) * .78);
+          const length = expansion * (.055 + ((i * 17) % 9) / 100);
+          const startX = left + width * .18 + ((i * 29) % 35);
+          speedGroup.appendChild(makeStroke(
+            startX,
+            y,
+            startX + length,
+            y + ((i % 3) - 1) * 2,
+            .55 + (i % 3) * .28,
+            .12 + (i % 4) * .035,
+            i % 4 === 0 ? "url(#red-speed-gradient)" : "url(#speed-gradient)"
+          ));
+        }
+
+        for (let i = 0; i < 8; i++) {
+          const y = top + height * (.24 + i * .075);
+          insideSpeed.appendChild(makeStroke(
+            left - width * .22,
+            y,
+            right + width * .12,
+            y - 1,
+            1 + (i % 3) * .55,
+            .14 + (i % 3) * .035,
+            i > 4 ? "url(#red-speed-gradient)" : "url(#speed-gradient)"
+          ));
+        }
+
+        for (let i = 0; i < 5; i++) {
+          const y = top + height * (.27 + i * .13);
+          const length = width * (.055 + i * .018);
+          speedGroup.appendChild(makeStroke(
+            right - width * .025,
+            y,
+            right + length,
+            y + (i % 2 ? 2 : -2),
+            .8 + i * .25,
+            .14,
+            "url(#red-speed-gradient)"
+          ));
+        }
+
+        tripleSvg.setAttribute("aria-label", `${heroNumber.textContent} triples in 2026`);
+      }
+
+      function setTripleNumber(value) {
+        const cleanNumber = String(value).replace(/[^\d]/g, "") || "0";
+        const target = Number(cleanNumber);
+        const start = Number(numberMain.textContent) || 0;
+        const startedAt = performance.now();
+        const duration = 650;
+
+        function animateNumber(now) {
+          const progress = Math.min(1, (now - startedAt) / duration);
+          const eased = 1 - Math.pow(1 - progress, 3);
+          const current = Math.round(start + (target - start) * eased);
+          numberMain.textContent = String(current);
+          numberHighlight.textContent = String(current);
+          numberGhosts.forEach((ghost) => { ghost.textContent = String(current); });
+          kineticNumber.setAttribute("aria-label", `${current} triples in 2026`);
+          renderNumberScene();
+          animateSpeedCanvas();
+          if (progress < 1) requestAnimationFrame(animateNumber);
+        }
+
+        requestAnimationFrame(animateNumber);
+      }
+
+      window.setTripleNumber = setTripleNumber;
+
+      let canvasWidth = 0;
+      let canvasHeight = 0;
+      let speedParticles = [];
+
+      function resizeSpeedCanvas() {
+        const rect = kineticNumber.getBoundingClientRect();
+        const ratio = window.devicePixelRatio || 1;
+        speedCanvas.width = rect.width * ratio;
+        speedCanvas.height = rect.height * ratio;
+        speedCanvas.style.width = `${rect.width}px`;
+        speedCanvas.style.height = `${rect.height}px`;
+        speedContext.setTransform(ratio, 0, 0, ratio, 0, 0);
+        canvasWidth = rect.width;
+        canvasHeight = rect.height;
+      }
+
+      function createSpeedParticle(initial = false) {
+        return {
+          x: canvasWidth + Math.random() * canvasWidth * .35,
+          y: canvasHeight * (.25 + Math.random() * .5),
+          length: Math.random() * Math.random() * 150 + 15,
+          speed: Math.random() * 8 + 2.5,
+          thickness: Math.random() * 1.7 + .25,
+          opacity: Math.random() * .55 + .1,
+          life: initial ? Math.random() : 0,
+        };
+      }
+
+      function initializeSpeedParticles() {
+        speedParticles = Array.from(
+          { length: Math.min(150, Math.floor(canvasWidth / 8)) },
+          () => createSpeedParticle(true)
+        );
+      }
+
+      function renderNumberScene() {
+        const text = numberMain.textContent || "0";
+        numberScene.width = Math.max(1, Math.floor(canvasWidth));
+        numberScene.height = Math.max(1, Math.floor(canvasHeight));
+        numberSceneContext.setTransform(1, 0, 0, 1, 0, 0);
+        numberSceneContext.clearRect(0, 0, canvasWidth, canvasHeight);
+
+        const mask = document.createElement("canvas");
+        mask.width = numberScene.width;
+        mask.height = numberScene.height;
+        const maskContext = mask.getContext("2d");
+        const fontSize = Math.min(canvasHeight, canvasWidth / (text.length * .62));
+        const centerX = canvasWidth * .5;
+        const centerY = canvasHeight * .62;
+        maskContext.save();
+        maskContext.translate(centerX, centerY);
+        maskContext.transform(1, 0, -.08, 1, 0, 0);
+        maskContext.font = `${fontSize}px "Bebas Neue", Impact, "Arial Black", Arial, sans-serif`;
+        maskContext.textAlign = "center";
+        maskContext.textBaseline = "middle";
+        maskContext.lineJoin = "round";
+        maskContext.lineWidth = fontSize * .045;
+        maskContext.strokeStyle = "#000";
+        maskContext.fillStyle = "#000";
+        maskContext.strokeText(text, 0, 0);
+        maskContext.fillText(text, 0, 0);
+        maskContext.restore();
+
+        const pixels = maskContext.getImageData(0, 0, numberScene.width, numberScene.height).data;
+        let minY = numberScene.height;
+        let maxY = 0;
+        let minX = numberScene.width;
+        let maxX = 0;
+        for (let y = 0; y < numberScene.height; y += 3) {
+          for (let x = 0; x < numberScene.width; x += 3) {
+            if (pixels[(y * numberScene.width + x) * 4 + 3] > 40) {
+              minY = Math.min(minY, y);
+              maxY = Math.max(maxY, y);
+              minX = Math.min(minX, x);
+              maxX = Math.max(maxX, x);
+            }
+          }
+        }
+
+        const fill = numberSceneContext.createLinearGradient(0, minY, 0, maxY || numberScene.height);
+        fill.addColorStop(0, "#050505");
+        fill.addColorStop(.45, "#090909");
+        fill.addColorStop(.72, "#5b0d20");
+        fill.addColorStop(1, "#c52243");
+        numberSceneContext.save();
+        numberSceneContext.drawImage(mask, 0, 0);
+        numberSceneContext.globalCompositeOperation = "source-in";
+        numberSceneContext.fillStyle = fill;
+        numberSceneContext.fillRect(0, 0, canvasWidth, canvasHeight);
+        numberSceneContext.restore();
+
+        const edgePoints = [];
+        for (let y = minY; y <= maxY; y += 4) {
+          for (let x = maxX; x >= minX; x -= 3) {
+            if (pixels[(y * numberScene.width + x) * 4 + 3] > 60) {
+              edgePoints.push({ x, y });
+              break;
+            }
+          }
+        }
+
+      }
+
+      function animateSpeedCanvas() {
+        speedContext.clearRect(0, 0, canvasWidth, canvasHeight);
+        speedContext.drawImage(numberScene, 0, 0);
+      }
+
+      resizeSpeedCanvas();
+      initializeSpeedParticles();
+      renderNumberScene();
+      animateSpeedCanvas();
+      if (document.fonts?.ready) {
+        document.fonts.ready.then(() => {
+          renderNumberScene();
+          animateSpeedCanvas();
+        });
+      }
+      setTripleNumber(0);
+      window.addEventListener("resize", () => {
+        resizeSpeedCanvas();
+        initializeSpeedParticles();
+        renderNumberScene();
+      });
+
       function clearError() {
         els.error.hidden = true;
         els.error.textContent = "";
@@ -830,9 +1779,15 @@
             const opponent = event.opponent || "Unknown";
             const locationBit = event.homeAway === "home" ? `vs. ${opponent}` : `@ ${opponent}`;
             const details = [dayLabel, locationBit, venue].filter(Boolean).join(" · ");
+            const logoUrl = teamLogoUrl(opponent);
             return `
               <li class="triple-item">
-                <div class="triple-meta">${details}</div>
+                <div class="triple-event-row">
+                  ${logoUrl ? `<img class="opponent-logo" src="${logoUrl}" alt="${opponent} logo" loading="lazy" />` : `<span></span>`}
+                  <div class="triple-event-copy">
+                    <div class="triple-meta">${details}</div>
+                  </div>
+                </div>
               </li>
             `;
           })
@@ -922,19 +1877,20 @@
             const dateDiff = new Date(b.date) - new Date(a.date);
             if (dateDiff !== 0) return dateDiff;
             return (b.playIndex || 0) - (a.playIndex || 0);
-          });
+          })
+          .slice(0, 5);
       }
 
       async function loadData() {
         if (loading) return;
         loading = true;
         clearError();
-          els.status.textContent = "Loading...";
+        els.status.textContent = "Loading...";
         els.refreshButton.disabled = true;
 
         try {
           const season = new Date().getFullYear();
-          els.seasonLabel.textContent = `Triples in ${season}`;
+          els.seasonLabel.textContent = `TRIPLES IN ${season}`;
 
           const profileUrl = `${MLB_BASE}/people/${PERSON_ID}`;
           const seasonUrl = `${MLB_BASE}/people/${PERSON_ID}/stats?stats=season&group=hitting&season=${season}`;
@@ -952,8 +1908,8 @@
             fetchJson(seasonUrl),
             fetchJson(careerUrl),
             fetchJson(yearByYearUrl),
-            fetchJson(seasonLeaderboardUrl),
-            fetchJson(careerLeaderboardUrl),
+            fetchAllStats(seasonLeaderboardUrl),
+            fetchAllStats(careerLeaderboardUrl),
           ]);
 
           const profile = profileRes.status === "fulfilled" ? profileRes.value?.people?.[0] : null;
@@ -998,11 +1954,10 @@
           const summedCareer = careerRows.reduce((sum, row) => sum + row.triples, 0);
           els.careerSeasonsMain.textContent = `${careerRows.length} seasons`;
 
-          els.seasonTriples.textContent = fmtNumber(seasonTriples);
+          const heroTriples = seasonTriples || (seasonFallback ? seasonFallback.triples : 0);
+          els.seasonTriples.textContent = fmtNumber(heroTriples);
           els.careerTriples.textContent = fmtNumber(careerTriples || summedCareer);
-          if (!seasonTriples && seasonFallback) {
-            els.seasonTriples.textContent = fmtNumber(seasonFallback.triples);
-          }
+          setTripleNumber(heroTriples);
 
           let recentEvents = [];
           try {
@@ -1017,11 +1972,6 @@
           renderCareerTable(careerRows);
 
           lastLoadedAt = new Date();
-          els.lastChecked.textContent = new Intl.DateTimeFormat(undefined, {
-            hour: "numeric",
-            minute: "2-digit",
-            second: "2-digit",
-          }).format(lastLoadedAt);
           els.status.textContent = `Updated ${timeAgoLabel(lastLoadedAt)}`;
 
         } catch (error) {
@@ -1054,6 +2004,13 @@
         refreshTimer = window.setInterval(() => {
           loadData();
         }, AUTO_REFRESH_MS);
+
+        if (statusTimer) window.clearInterval(statusTimer);
+        statusTimer = window.setInterval(() => {
+          if (lastLoadedAt && !loading) {
+            els.status.textContent = `Updated ${timeAgoLabel(lastLoadedAt)}`;
+          }
+        }, 1000);
       }
 
       document.getElementById("refresh-button").addEventListener("click", () => {
