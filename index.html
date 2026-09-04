@@ -196,16 +196,31 @@
         }
 
         .recent-block .section-head {
-          height: 58px;
+          height: 36px;
           box-sizing: border-box;
-          padding-bottom: 10px;
+          padding-bottom: 0;
           border-bottom: 0;
           margin-bottom: 0;
         }
 
-        .recent-block .triples-list {
-          margin-top: 10px;
-        }
+      .recent-block .triples-list {
+          margin-top: 0;
+      }
+
+      .latest-columns {
+        display: grid;
+        grid-template-columns: 48px minmax(0, 1fr) 150px;
+        gap: 12px;
+        height: 46px;
+        box-sizing: border-box;
+        align-items: center;
+        border-bottom: 1px solid var(--soft);
+        color: var(--muted);
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
 
         .stack > .section:first-child {
           grid-column: 2;
@@ -235,6 +250,8 @@
 
       .hero-visual {
         display: grid;
+        position: relative;
+        z-index: 1;
         grid-template-columns: 58% 42%;
         align-items: center;
         min-height: 320px;
@@ -252,6 +269,8 @@
 
       .hero-player-art {
         display: block;
+        position: relative;
+        z-index: 0;
         width: 100%;
         height: 285px;
         margin: 8px 0 0;
@@ -438,7 +457,7 @@
 
       .kpis {
         position: relative;
-        z-index: 2;
+        z-index: 3;
         display: grid;
         grid-template-columns: minmax(220px, 1fr);
         width: min(58%, 380px);
@@ -591,17 +610,28 @@
 
       .triple-item {
         border-top: 1px solid var(--soft);
-        height: 58px;
+        height: 56px;
         box-sizing: border-box;
-        padding: 8px 0;
+        padding: 7px 0;
       }
 
       .triple-event-row {
         display: grid;
-        grid-template-columns: 48px minmax(0, 1fr);
+        grid-template-columns: 48px minmax(0, 1fr) 150px;
         min-height: 42px;
         gap: 12px;
         align-items: center;
+      }
+
+      .triple-event-team,
+      .triple-event-day {
+        min-width: 0;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      .triple-event-day {
+        white-space: nowrap;
       }
 
       .triple-event-copy {
@@ -818,7 +848,7 @@
       }
 
       tbody tr {
-        height: 58px;
+        height: 56px;
       }
 
       .year {
@@ -827,6 +857,16 @@
 
       .team-list {
         color: var(--muted);
+      }
+
+      .league-leading {
+        color: var(--accent);
+        font-weight: 900 !important;
+      }
+
+      .mlb-leading {
+        color: var(--accent);
+        font-style: italic;
       }
 
       .error {
@@ -910,8 +950,15 @@
         }
 
         .triple-event-row {
-          grid-template-columns: 48px 1fr;
+          grid-template-columns: 42px minmax(0, 1fr) 104px;
           gap: 10px;
+        }
+
+        .latest-columns {
+          grid-template-columns: 42px minmax(0, 1fr) 104px;
+          gap: 10px;
+          height: 40px;
+          font-size: 0.7rem;
         }
 
         .section-head,
@@ -975,7 +1022,7 @@
             <div class="hero-art-spot" aria-label="Corbin Carroll">
               <img
                 class="hero-player-art"
-                src="corbinfancy.png"
+                src="corbinfancy.PNG?v=3"
                 alt=""
                 aria-hidden="true"
               />
@@ -998,7 +1045,12 @@
 
         <section class="recent-block" aria-labelledby="recent-heading">
           <div class="section-head">
-            <h2 id="recent-heading">Latest</h2>
+            <h2 id="recent-heading">Most Recent</h2>
+          </div>
+          <div class="latest-columns" aria-hidden="true">
+            <span></span>
+            <span>Team</span>
+            <span>Day</span>
           </div>
           <ol class="triples-list" id="recent-triples">
             <li class="empty">...</li>
@@ -1664,16 +1716,19 @@
       }
 
       function renderNumberScene() {
+        if (!canvasWidth || !canvasHeight) return;
         const text = numberMain.textContent || "0";
-        numberScene.width = Math.max(1, Math.floor(canvasWidth));
-        numberScene.height = Math.max(1, Math.floor(canvasHeight));
-        numberSceneContext.setTransform(1, 0, 0, 1, 0, 0);
+        const ratio = window.devicePixelRatio || 1;
+        numberScene.width = Math.max(1, Math.floor(canvasWidth * ratio));
+        numberScene.height = Math.max(1, Math.floor(canvasHeight * ratio));
+        numberSceneContext.setTransform(ratio, 0, 0, ratio, 0, 0);
         numberSceneContext.clearRect(0, 0, canvasWidth, canvasHeight);
 
         const mask = document.createElement("canvas");
         mask.width = numberScene.width;
         mask.height = numberScene.height;
         const maskContext = mask.getContext("2d");
+        maskContext.setTransform(ratio, 0, 0, ratio, 0, 0);
         const fontSize = Math.min(canvasHeight, canvasWidth / (text.length * .62));
         const centerX = canvasWidth * .5;
         const centerY = canvasHeight * .62;
@@ -1691,21 +1746,8 @@
         maskContext.fillText(text, 0, 0);
         maskContext.restore();
 
-        const pixels = maskContext.getImageData(0, 0, numberScene.width, numberScene.height).data;
-        let minY = numberScene.height;
-        let maxY = 0;
-        let minX = numberScene.width;
-        let maxX = 0;
-        for (let y = 0; y < numberScene.height; y += 3) {
-          for (let x = 0; x < numberScene.width; x += 3) {
-            if (pixels[(y * numberScene.width + x) * 4 + 3] > 40) {
-              minY = Math.min(minY, y);
-              maxY = Math.max(maxY, y);
-              minX = Math.min(minX, x);
-              maxX = Math.max(maxX, x);
-            }
-          }
-        }
+        const minY = centerY - fontSize * .45;
+        const maxY = centerY + fontSize * .45;
 
         const fill = numberSceneContext.createLinearGradient(0, minY, 0, maxY || numberScene.height);
         fill.addColorStop(0, "#050505");
@@ -1713,27 +1755,18 @@
         fill.addColorStop(.72, "#5b0d20");
         fill.addColorStop(1, "#c52243");
         numberSceneContext.save();
-        numberSceneContext.drawImage(mask, 0, 0);
+        numberSceneContext.drawImage(mask, 0, 0, canvasWidth, canvasHeight);
         numberSceneContext.globalCompositeOperation = "source-in";
         numberSceneContext.fillStyle = fill;
         numberSceneContext.fillRect(0, 0, canvasWidth, canvasHeight);
         numberSceneContext.restore();
 
-        const edgePoints = [];
-        for (let y = minY; y <= maxY; y += 4) {
-          for (let x = maxX; x >= minX; x -= 3) {
-            if (pixels[(y * numberScene.width + x) * 4 + 3] > 60) {
-              edgePoints.push({ x, y });
-              break;
-            }
-          }
-        }
-
       }
 
       function animateSpeedCanvas() {
+        if (!canvasWidth || !canvasHeight || !numberScene.width || !numberScene.height) return;
         speedContext.clearRect(0, 0, canvasWidth, canvasHeight);
-        speedContext.drawImage(numberScene, 0, 0);
+        speedContext.drawImage(numberScene, 0, 0, canvasWidth, canvasHeight);
       }
 
       resizeSpeedCanvas();
@@ -1752,6 +1785,13 @@
         initializeSpeedParticles();
         renderNumberScene();
       });
+      if (window.ResizeObserver) {
+        new ResizeObserver(() => {
+          resizeSpeedCanvas();
+          renderNumberScene();
+          animateSpeedCanvas();
+        }).observe(kineticNumber);
+      }
 
       function clearError() {
         els.error.hidden = true;
@@ -1778,21 +1818,44 @@
             const venue = event.venue || "";
             const opponent = event.opponent || "Unknown";
             const locationBit = event.homeAway === "home" ? `vs. ${opponent}` : `@ ${opponent}`;
-            const details = [dayLabel, locationBit, venue].filter(Boolean).join(" · ");
             const logoUrl = teamLogoUrl(opponent);
             return `
               <li class="triple-item">
                 <div class="triple-event-row">
                   ${logoUrl ? `<img class="opponent-logo" src="${logoUrl}" alt="${opponent} logo" loading="lazy" />` : `<span></span>`}
-                  <div class="triple-event-copy">
-                    <div class="triple-meta">${details}</div>
-                  </div>
+                  <div class="triple-event-team">${locationBit}</div>
+                  <div class="triple-event-day">${dayLabel}</div>
                 </div>
               </li>
             `;
           })
           .join("");
 
+      }
+
+      async function markLeagueLeadingSeasons(rows) {
+        await Promise.all(rows.map(async (row) => {
+          try {
+            const baseUrl = `${MLB_BASE}/stats?stats=season&group=hitting&season=${row.season}` +
+              "&playerPool=ALL&sortStat=triples&order=desc&limit=1";
+            const [leaguePayload, mlbPayload] = await Promise.all([
+              fetchJson(`${baseUrl}&leagueIds=104`),
+              fetchJson(baseUrl),
+            ]);
+            const leagueLeader = extractSplits(leaguePayload)[0];
+            const mlbLeader = extractSplits(mlbPayload)[0];
+            row.leagueLeader = Boolean(
+              leagueLeader && row.triples >= statValue(leagueLeader, "triples")
+            );
+            row.mlbLeader = Boolean(
+              mlbLeader && row.triples >= statValue(mlbLeader, "triples")
+            );
+          } catch (error) {
+            console.warn(`Could not check the ${row.season} triples leader`, error);
+            row.leagueLeader = false;
+            row.mlbLeader = false;
+          }
+        }));
       }
 
       function renderCareerTable(rows) {
@@ -1812,7 +1875,10 @@
               <tr>
                 <td class="year">${row.season}</td>
                 <td class="team-list">${teamText}</td>
-                <td>${fmtNumber(row.triples)}</td>
+                <td><strong class="${[
+                  row.leagueLeader || row.mlbLeader ? "league-leading" : "",
+                  row.mlbLeader ? "mlb-leading" : "",
+                ].filter(Boolean).join(" ")}">${fmtNumber(row.triples)}</strong></td>
               </tr>
             `;
           })
@@ -1881,7 +1947,7 @@
           .slice(0, 5);
       }
 
-      async function loadData() {
+      async function loadData(canRetry = true) {
         if (loading) return;
         loading = true;
         clearError();
@@ -1969,6 +2035,7 @@
               <li class="empty">No data.</li>
             `;
           }
+          await markLeagueLeadingSeasons(careerRows);
           renderCareerTable(careerRows);
 
           lastLoadedAt = new Date();
@@ -1980,6 +2047,9 @@
             "MLB API unavailable."
           );
           els.status.textContent = "Load failed";
+          if (canRetry) {
+            window.setTimeout(() => loadData(false), 1500);
+          }
           els.seasonTriples.textContent = "--";
           els.careerTriples.textContent = "--";
           els.seasonLeaderboard.innerHTML = `<li class="empty">No data.</li>`;
