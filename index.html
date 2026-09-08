@@ -737,6 +737,23 @@
         align-items: start;
       }
 
+      .leaderboard-projection {
+        flex-basis: 100%;
+        grid-column: 1 / -1;
+        margin: 2px 0 0;
+        padding-left: 10px;
+        border-left: 2px solid var(--accent);
+        color: var(--muted);
+        font-size: 0.85rem;
+        font-weight: 400;
+      }
+
+      .leaderboard-projection strong {
+        display: block;
+        margin-bottom: 4px;
+        color: var(--accent);
+      }
+
       .leaderboard-card {
         border: 1px solid rgba(31, 31, 31, 0.08);
         border-radius: 18px;
@@ -769,6 +786,7 @@
       }
 
       .leaderboard-list .current {
+        flex-wrap: wrap;
         color: var(--accent);
         font-weight: 700;
       }
@@ -1488,8 +1506,19 @@
         );
         if (index < 0) return null;
 
+        const current = rankedRows[index];
+        const otherRows = rankedRows.filter((row) => row !== current);
+        const nextTriples = current.triples + 1;
+        const nextRank = 1 + otherRows.filter((row) => row.triples > nextTriples).length;
+        const ahead = otherRows.filter((row) => row.triples > current.triples);
+
         return {
-          rank: rankedRows[index].rank,
+          rank: current.rank,
+          nextRank,
+          nextTied: otherRows.some((row) => row.triples === nextTriples),
+          triplesToClimb: ahead.length
+            ? Math.min(...ahead.map((row) => row.triples)) - current.triples
+            : null,
           rows:
             index < 10
               ? rankedRows.slice(0, 10)
@@ -1499,6 +1528,21 @@
                   { ...rankedRows[index], playerName: fallbackName },
                 ],
         };
+      }
+
+      function renderLeaderboardProjection(element, data) {
+        element.hidden = !data || data.rank === 1;
+        element.replaceChildren();
+        if (element.hidden) return;
+
+        const heading = document.createElement("strong");
+        heading.textContent = "Next triple";
+        const gain = data.rank - data.nextRank;
+        const rankLabel = `#${data.nextTied ? "T-" : ""}${fmtNumber(data.nextRank)}`;
+        const description = gain > 0
+          ? `↑ ${fmtNumber(gain)} ${gain === 1 ? "spot" : "spots"} to ${rankLabel}`
+          : `Stays at ${rankLabel} · ${fmtNumber(data.triplesToClimb)} triples to climb`;
+        element.append(heading, document.createTextNode(description));
       }
 
       async function addCareerSeasonCounts(data) {
@@ -1548,6 +1592,13 @@
             `;
           })
           .join("");
+        const currentRow = element.querySelector(".current");
+        if (currentRow && data.rank > 1) {
+          const projection = document.createElement("p");
+          projection.className = "leaderboard-projection";
+          renderLeaderboardProjection(projection, data);
+          currentRow.append(projection);
+        }
       }
 
       function seasonTriplesFrom(payload, season) {
