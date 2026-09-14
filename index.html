@@ -145,11 +145,34 @@
             <p class="leaderboard-disclaimer">
               Rankings use official MLB Stats API data and may differ from other sources.
             </p>
+
           </section>
         </div>
+        <footer class="site-footer">
+          <section class="section triple-alerts" aria-labelledby="alerts-heading">
+            <div class="alerts-copy">
+              <h2 id="alerts-heading">Triple alerts</h2>
+              <p>He triples. You get a text.</p>
+            </div>
+            <div class="alerts-action">
+              <a id="sms-subscribe" class="sms-button" hidden>Text TRIPLES to subscribe <span aria-hidden="true">↗</span></a>
+              <span id="sms-coming-soon" class="sms-pending">Coming soon</span>
+              <p id="sms-instructions">Subscriptions open here soon.</p>
+            </div>
+            <p class="sms-disclosure">Text TRIPLES, then YES, to get automated Corbin triple alerts. Frequency varies. Message and data rates may apply. STOP to cancel, HELP for help. <a href="/sms-terms/">Terms</a> · <a href="/sms-privacy/">Privacy</a></p>
+          </section>
+          <div class="tip-row">
+            <a class="tip-link" href="https://ko-fi.com/P1S7270J56" target="_blank" rel="noopener noreferrer" aria-label="Tip jar on Ko-fi (opens in a new tab)">
+              <svg class="tip-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h12v7a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V7Z"/><path d="M16 8h2a3 3 0 0 1 0 6h-2M3 22h16M8 2v2m4-2v2"/></svg>
+              Tip jar <span aria-hidden="true">↗</span>
+            </a>
+          </div>
+        </footer>
       </main>
     </div>
 
     <script src="app.js"></script>
+    <script src="alerts-config.js"></script>
+    <script src="alerts.js"></script>
   </body>
 </html>

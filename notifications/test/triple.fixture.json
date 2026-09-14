@@ -1,0 +1,379 @@
+{
+  "gamePk": 778429,
+  "gameData": {
+    "game": {
+      "type": "R"
+    },
+    "teams": {
+      "home": {
+        "id": 120,
+        "teamName": "Nationals"
+      },
+      "away": {
+        "id": 109,
+        "teamName": "D-backs"
+      }
+    }
+  },
+  "liveData": {
+    "plays": {
+      "allPlays": [
+        {
+          "result": {
+            "type": "atBat",
+            "event": "Triple",
+            "eventType": "triple",
+            "description": "Corbin Carroll triples (1) on a ground ball to right fielder Alex Call.",
+            "rbi": 0,
+            "awayScore": 0,
+            "homeScore": 0,
+            "isOut": false
+          },
+          "about": {
+            "atBatIndex": 0,
+            "halfInning": "top",
+            "isTopInning": true,
+            "inning": 1,
+            "startTime": "2025-04-06T17:35:50.266Z",
+            "endTime": "2025-04-06T17:36:18.063Z",
+            "isComplete": true,
+            "isScoringPlay": false,
+            "hasReview": false,
+            "hasOut": false,
+            "captivatingIndex": 35
+          },
+          "count": {
+            "balls": 1,
+            "strikes": 0,
+            "outs": 0
+          },
+          "matchup": {
+            "batter": {
+              "id": 682998,
+              "fullName": "Corbin Carroll",
+              "link": "/api/v1/people/682998"
+            },
+            "batSide": {
+              "code": "L",
+              "description": "Left"
+            },
+            "pitcher": {
+              "id": 592866,
+              "fullName": "Trevor Williams",
+              "link": "/api/v1/people/592866"
+            },
+            "pitchHand": {
+              "code": "R",
+              "description": "Right"
+            },
+            "postOnThird": {
+              "id": 682998,
+              "fullName": "Corbin Carroll",
+              "link": "/api/v1/people/682998"
+            },
+            "batterHotColdZones": [],
+            "pitcherHotColdZones": [],
+            "splits": {
+              "batter": "vs_RHP",
+              "pitcher": "vs_LHB",
+              "menOnBase": "RISP"
+            }
+          },
+          "pitchIndex": [
+            3,
+            4
+          ],
+          "actionIndex": [
+            0,
+            1,
+            2
+          ],
+          "runnerIndex": [
+            0
+          ],
+          "runners": [
+            {
+              "movement": {
+                "originBase": null,
+                "start": null,
+                "end": "3B",
+                "outBase": null,
+                "isOut": false,
+                "outNumber": null
+              },
+              "details": {
+                "event": "Triple",
+                "eventType": "triple",
+                "movementReason": null,
+                "runner": {
+                  "id": 682998,
+                  "fullName": "Corbin Carroll",
+                  "link": "/api/v1/people/682998"
+                },
+                "responsiblePitcher": null,
+                "isScoringEvent": false,
+                "rbi": false,
+                "earned": false,
+                "teamUnearned": false,
+                "playIndex": 4
+              },
+              "credits": [
+                {
+                  "player": {
+                    "id": 669743,
+                    "link": "/api/v1/people/669743"
+                  },
+                  "position": {
+                    "code": "9",
+                    "name": "Outfielder",
+                    "type": "Outfielder",
+                    "abbreviation": "RF"
+                  },
+                  "credit": "f_fielded_ball"
+                }
+              ]
+            }
+          ],
+          "playEvents": [
+            {
+              "details": {
+                "description": "Status Change - Pre-Game",
+                "event": "Game Advisory",
+                "eventType": "game_advisory",
+                "awayScore": 0,
+                "homeScore": 0,
+                "isScoringPlay": false,
+                "isOut": false,
+                "hasReview": false
+              },
+              "count": {
+                "balls": 0,
+                "strikes": 0,
+                "outs": 0
+              },
+              "index": 0,
+              "startTime": "2025-04-06T15:31:01.999Z",
+              "endTime": "2025-04-06T17:16:57.461Z",
+              "isPitch": false,
+              "type": "action",
+              "player": {
+                "id": 682998,
+                "link": "/api/v1/people/682998"
+              }
+            },
+            {
+              "details": {
+                "description": "Status Change - Warmup",
+                "event": "Game Advisory",
+                "eventType": "game_advisory",
+                "awayScore": 0,
+                "homeScore": 0,
+                "isScoringPlay": false,
+                "isOut": false,
+                "hasReview": false
+              },
+              "count": {
+                "balls": 0,
+                "strikes": 0,
+                "outs": 0
+              },
+              "index": 1,
+              "startTime": "2025-04-06T17:16:57.461Z",
+              "endTime": "2025-04-06T17:34:55.029Z",
+              "isPitch": false,
+              "type": "action",
+              "player": {
+                "id": 682998,
+                "link": "/api/v1/people/682998"
+              }
+            },
+            {
+              "details": {
+                "description": "Status Change - In Progress",
+                "event": "Game Advisory",
+                "eventType": "game_advisory",
+                "awayScore": 0,
+                "homeScore": 0,
+                "isScoringPlay": false,
+                "isOut": false,
+                "hasReview": false
+              },
+              "count": {
+                "balls": 0,
+                "strikes": 0,
+                "outs": 0
+              },
+              "index": 2,
+              "startTime": "2025-04-06T17:34:55.029Z",
+              "endTime": "2025-04-06T17:35:52.568Z",
+              "isPitch": false,
+              "type": "action",
+              "player": {
+                "id": 682998,
+                "link": "/api/v1/people/682998"
+              }
+            },
+            {
+              "details": {
+                "call": {
+                  "code": "B",
+                  "description": "Ball"
+                },
+                "description": "Ball",
+                "code": "B",
+                "ballColor": "rgba(39, 161, 39, 1.0)",
+                "trailColor": "rgba(188, 0, 33, 1.0)",
+                "isInPlay": false,
+                "isStrike": false,
+                "isBall": true,
+                "type": {
+                  "code": "FF",
+                  "description": "Four-Seam Fastball"
+                },
+                "isOut": false,
+                "hasReview": false
+              },
+              "count": {
+                "balls": 1,
+                "strikes": 0,
+                "outs": 0
+              },
+              "pitchData": {
+                "startSpeed": 87.3,
+                "endSpeed": 81.3,
+                "strikeZoneTop": 3.23946501734659,
+                "strikeZoneBottom": 1.43718530023148,
+                "strikeZoneWidth": 17,
+                "strikeZoneDepth": 17,
+                "coordinates": {
+                  "aY": 21.65515932063929,
+                  "aZ": -20.50277302864942,
+                  "pfxX": -5.034985307963597,
+                  "pfxZ": 6.997049823810414,
+                  "pX": -0.8578189108394428,
+                  "pZ": 1.6810882011566393,
+                  "vX0": 5.656070960946693,
+                  "vY0": -127.21509649787546,
+                  "vZ0": -3.9476504097156235,
+                  "x": 149.7,
+                  "y": 193.39,
+                  "x0": -2.4370539954714454,
+                  "y0": 50.00633390223778,
+                  "z0": 4.84242574112009,
+                  "aX": -8.404415050656901
+                },
+                "breaks": {
+                  "breakAngle": 19.2,
+                  "breakLength": 6,
+                  "breakY": 24,
+                  "breakVertical": -23.2,
+                  "breakVerticalInduced": 12.1,
+                  "breakHorizontal": 8.2,
+                  "spinRate": 2141,
+                  "spinDirection": 237
+                },
+                "zone": 13,
+                "typeConfidence": 2,
+                "plateTime": 0.4275945494183775,
+                "extension": 6.976613618144876
+              },
+              "index": 3,
+              "playId": "890a812f-42e7-375d-b712-de8a100a10f4",
+              "pitchNumber": 1,
+              "startTime": "2025-04-06T17:35:52.568Z",
+              "endTime": "2025-04-06T17:35:57.935Z",
+              "isPitch": true,
+              "type": "pitch"
+            },
+            {
+              "details": {
+                "call": {
+                  "code": "D",
+                  "description": "In play, no out"
+                },
+                "description": "In play, no out",
+                "code": "D",
+                "ballColor": "rgba(26, 86, 190, 1.0)",
+                "trailColor": "rgba(188, 0, 33, 1.0)",
+                "isInPlay": true,
+                "isStrike": false,
+                "isBall": false,
+                "type": {
+                  "code": "FF",
+                  "description": "Four-Seam Fastball"
+                },
+                "isOut": false,
+                "hasReview": false
+              },
+              "count": {
+                "balls": 1,
+                "strikes": 0,
+                "outs": 0
+              },
+              "pitchData": {
+                "startSpeed": 87.1,
+                "endSpeed": 80.5,
+                "strikeZoneTop": 3.16,
+                "strikeZoneBottom": 1.5,
+                "strikeZoneWidth": 17,
+                "strikeZoneDepth": 17,
+                "coordinates": {
+                  "aY": 22.991535893779478,
+                  "aZ": -21.74603092098607,
+                  "pfxX": -6.166063900551405,
+                  "pfxZ": 6.343035443439803,
+                  "pX": 0.4436835533152809,
+                  "pZ": 2.664225068884071,
+                  "vX0": 8.47098175082696,
+                  "vY0": -126.67215876455532,
+                  "vZ0": -1.5375387477352733,
+                  "x": 100.09,
+                  "y": 166.85,
+                  "x0": -2.1244659831399404,
+                  "y0": 50.00488355578792,
+                  "z0": 4.997669234008103,
+                  "aX": -10.141698582514797
+                },
+                "breaks": {
+                  "breakAngle": 21.6,
+                  "breakLength": 6,
+                  "breakY": 24,
+                  "breakVertical": -24.4,
+                  "breakVerticalInduced": 11.4,
+                  "breakHorizontal": 9.5,
+                  "spinRate": 2163,
+                  "spinDirection": 226
+                },
+                "zone": 3,
+                "typeConfidence": 2,
+                "plateTime": 0.4304517492567217,
+                "extension": 6.9108269081646245
+              },
+              "hitData": {
+                "launchSpeed": 115.8,
+                "launchAngle": 6,
+                "totalDistance": 135,
+                "trajectory": "ground_ball",
+                "hardness": "medium",
+                "location": "9",
+                "coordinates": {
+                  "coordX": 217.18,
+                  "coordY": 112.66
+                }
+              },
+              "index": 4,
+              "playId": "c5b462a3-8de4-32da-8a3c-85c33335369a",
+              "pitchNumber": 2,
+              "startTime": "2025-04-06T17:36:05.862Z",
+              "endTime": "2025-04-06T17:36:18.063Z",
+              "isPitch": true,
+              "type": "pitch"
+            }
+          ],
+          "playEndTime": "2025-04-06T17:36:18.063Z",
+          "atBatIndex": 0
+        }
+      ]
+    }
+  }
+}

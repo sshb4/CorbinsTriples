@@ -1,0 +1,23 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "corbin-triple-alerts",
+  "main": "src/worker.js",
+  "compatibility_date": "2026-09-14",
+  "compatibility_flags": ["nodejs_compat"],
+  "triggers": { "crons": ["* * * * *"] },
+  "vars": {
+    "ALERTS_ENABLED": "false",
+    "ALERTS_START_AT": "",
+    "PUBLIC_URL": "",
+    "TWILIO_PHONE_NUMBER": "",
+    "SUPPORT_EMAIL": "",
+    "MAX_SUBSCRIBERS": "100",
+    "MAX_ALERTS_PER_MONTH": "1000"
+  },
+  "d1_databases": [{
+    "binding": "DB",
+    "database_name": "corbin-triple-alerts",
+    "database_id": "REPLACE_WITH_D1_DATABASE_ID",
+    "migrations_dir": "migrations"
+  }]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "corbin-triple-alerts",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "dev": "wrangler dev",
+    "check": "wrangler deploy --dry-run",
+    "deploy": "wrangler deploy"
+  },
+  "dependencies": { "twilio": "^5.0.0" },
+  "devDependencies": { "wrangler": "^4.0.0" }
+}

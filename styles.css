@@ -1042,4 +1042,56 @@
         white-space: nowrap;
         border: 0;
       }
-    
+
+/* Alerts and tip jar follow the leaderboard's width and ruled sections. */
+.site-footer {
+  grid-column: 1 / -1;
+  width: min(100%, 720px);
+  min-width: 0;
+  margin: 20px auto 0;
+  border-top: 1px solid var(--line);
+}
+.triple-alerts {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 22px 28px;
+  padding: 24px 0 20px;
+}
+.alerts-copy > p { margin: 20px 0 0; color: var(--muted); font-size: .88rem; }
+.alerts-action { max-width: 310px; text-align: right; }
+.sms-button, .sms-pending {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 15px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font: inherit;
+  font-size: .82rem;
+  font-weight: 650;
+  text-decoration: none;
+}
+.sms-button { background: var(--accent); border-color: var(--accent); color: #fffaf2; }
+.sms-button:hover { background: var(--accent-deep); border-color: var(--accent-deep); }
+.sms-button:focus-visible, .tip-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+.sms-button[hidden], .sms-pending[hidden] { display: none; }
+.sms-pending { color: var(--muted); background: transparent; font-weight: 500; }
+#sms-instructions { font-size: .75rem; color: var(--muted); margin: 8px 0 0; }
+.sms-disclosure { grid-column: 1 / -1; font-size: .72rem; line-height: 1.6; color: var(--muted); margin: 0; }
+.sms-disclosure a { text-underline-offset: 3px; white-space: nowrap; }
+.tip-row { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 17px 0; border-top: 1px solid var(--line); }
+.tip-row p { margin: 0; font-size: .78rem; color: var(--muted); }
+.tip-link { display: inline-flex; align-items: center; justify-content: center; gap: 8px; flex-shrink: 0; padding: 8px 14px; border: 1px solid var(--line); border-radius: 999px; color: var(--accent); font-size: .82rem; font-weight: 650; text-decoration: none; }
+.tip-link:hover { border-color: var(--accent); background: var(--accent-soft); }
+.tip-icon { width: 18px; height: 18px; }
+.sms-policy { max-width: 740px; padding-top: 40px; }
+.sms-policy h1 { font-size: clamp(1.8rem, 5vw, 2.5rem); line-height: 1.15; margin-top: 32px; }
+.sms-policy h2 { font-size: 1.2rem; margin-top: 28px; }
+.sms-policy p { line-height: 1.7; }
+@media (max-width: 480px) {
+  .triple-alerts { grid-template-columns: 1fr; gap: 18px; }
+  .alerts-action { max-width: none; text-align: left; }
+  .tip-row { gap: 16px; align-items: center; }
+  .tip-row p { max-width: 190px; }
+}
