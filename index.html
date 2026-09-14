@@ -154,12 +154,26 @@
               <h2 id="alerts-heading">Triple alerts</h2>
               <p>He triples. You get a text.</p>
             </div>
+            <form id="sms-form" class="sms-form" aria-describedby="sms-form-status sms-disclosure">
+              <label for="sms-phone">Your phone number <span>(US only)</span></label>
+              <div class="sms-form-row">
+                <input id="sms-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" maxlength="25" placeholder="(520) 555-0123" required aria-describedby="sms-form-status" />
+                <button id="sms-form-submit" class="sms-button" type="submit" disabled>Get triple texts</button>
+              </div>
+              <label class="sms-consent" for="sms-consent">
+                <input id="sms-consent" name="consent" type="checkbox" required />
+                <span>I agree to receive recurring automated texts about Corbin Carroll's triples. Consent is not a condition of purchase.</span>
+              </label>
+              <div id="sms-turnstile"></div>
+              <p id="sms-form-status" class="sms-form-status" role="status" aria-live="polite">Phone signup opens once text alerts are activated.</p>
+              <noscript><p>Enable JavaScript to use this form, or text TRIPLES to (520) 777-0150.</p></noscript>
+            </form>
             <div class="alerts-action">
               <a id="sms-subscribe" class="sms-button" hidden>Text TRIPLES to subscribe <span aria-hidden="true">↗</span></a>
               <span id="sms-coming-soon" class="sms-pending">Coming soon</span>
               <p id="sms-instructions">Subscriptions open here soon.</p>
             </div>
-            <p class="sms-disclosure">Text TRIPLES, then YES, to get automated Corbin triple alerts. Frequency varies. Message and data rates may apply. STOP to cancel, HELP for help. <a href="/sms-terms/">Terms</a> · <a href="/sms-privacy/">Privacy</a></p>
+            <p id="sms-disclosure" class="sms-disclosure">Sign up above or text TRIPLES, then reply YES to confirm. Frequency varies. Message and data rates may apply. STOP to cancel, HELP for help. <a href="/sms-terms/">Terms</a> · <a href="/sms-privacy/">Privacy</a></p>
           </section>
           <div class="tip-row">
             <a class="tip-link" href="https://ko-fi.com/P1S7270J56" target="_blank" rel="noopener noreferrer" aria-label="Tip jar on Ko-fi (opens in a new tab)">

@@ -1,6 +1,8 @@
 // Public display settings only. Never put Twilio credentials in this file.
-// Set these after the verified number and webhook are ready.
+// The number enables the signup link; backend activation is configured separately.
 window.CORBIN_ALERTS = {
-  phoneNumber: '',
-  supportEmail: ''
+  phoneNumber: '+15207770150',
+  supportEmail: '',
+  apiBaseUrl: '',
+  turnstileSiteKey: ''
 };

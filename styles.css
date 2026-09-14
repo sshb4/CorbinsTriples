@@ -1059,7 +1059,20 @@
   padding: 24px 0 20px;
 }
 .alerts-copy > p { margin: 20px 0 0; color: var(--muted); font-size: .88rem; }
-.alerts-action { max-width: 310px; text-align: right; }
+.alerts-copy { grid-column: 1 / -1; }
+.alerts-action { grid-column: 1 / -1; padding-top: 18px; border-top: 1px solid var(--soft); }
+.sms-form { grid-column: 1 / -1; min-width: 0; }
+.sms-form > label { display: block; margin-bottom: 8px; font-size: .82rem; font-weight: 650; }
+.sms-form > label > span { font-weight: 400; color: var(--muted); }
+.sms-form-row { display: flex; gap: 10px; }
+.sms-form-row input { flex: 1; min-width: 0; padding: 11px 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel-solid); color: var(--text); font: inherit; font-size: 16px; }
+.sms-form-row input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.sms-form .sms-consent { display: flex; align-items: flex-start; gap: 10px; margin: 14px 0; cursor: pointer; font-weight: 400; line-height: 1.5; }
+.sms-consent input { width: 18px; height: 18px; margin: 2px 0 0; flex: 0 0 18px; accent-color: var(--accent); }
+.sms-form-status { margin: 10px 0 0; font-size: .78rem; color: var(--muted); }
+#sms-turnstile { max-width: 100%; }
+.alerts-action .sms-button { background: transparent; color: var(--accent); border-color: var(--line); }
+.alerts-action .sms-button:hover { background: var(--accent-soft); border-color: var(--accent); }
 .sms-button, .sms-pending {
   display: inline-flex;
   align-items: center;
@@ -1074,6 +1087,7 @@
 }
 .sms-button { background: var(--accent); border-color: var(--accent); color: #fffaf2; }
 .sms-button:hover { background: var(--accent-deep); border-color: var(--accent-deep); }
+.sms-button:disabled { opacity: .5; cursor: not-allowed; box-shadow: none; }
 .sms-button:focus-visible, .tip-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 .sms-button[hidden], .sms-pending[hidden] { display: none; }
 .sms-pending { color: var(--muted); background: transparent; font-weight: 500; }
@@ -1090,6 +1104,8 @@
 .sms-policy h2 { font-size: 1.2rem; margin-top: 28px; }
 .sms-policy p { line-height: 1.7; }
 @media (max-width: 480px) {
+  .sms-form-row { flex-direction: column; }
+  .sms-form-row button { justify-content: center; }
   .triple-alerts { grid-template-columns: 1fr; gap: 18px; }
   .alerts-action { max-width: none; text-align: left; }
   .tip-row { gap: 16px; align-items: center; }
