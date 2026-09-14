@@ -8,6 +8,11 @@
     "check": "wrangler deploy --dry-run",
     "deploy": "wrangler deploy"
   },
-  "dependencies": { "twilio": "^5.0.0" },
-  "devDependencies": { "wrangler": "^4.0.0" }
+  "dependencies": {
+    "libphonenumber-js": "^1.13.13",
+    "twilio": "^5.0.0"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
 }

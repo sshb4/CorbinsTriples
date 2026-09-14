@@ -1,7 +1,8 @@
 import { validateRequest } from 'twilio/lib/webhooks/webhooks.js';
 import { tripleEvents, TEAM_ID } from './triples.js';
+import { TERMS_VERSION, SIGNUP_PROMPT } from './messages.js';
+import { webSignup } from './signup.js';
 
-export const TERMS_VERSION = '2026-09-14';
 const MINUTE = 60_000;
 const DAY = 24 * 60 * MINUTE;
 const STOP = new Set(['STOP', 'STOPALL', 'UNSUBSCRIBE', 'CANCEL', 'END', 'QUIT', 'REVOKE', 'OPTOUT']);
@@ -55,12 +56,13 @@ export async function incoming(env, params, now = Date.now()) {
   await db(env, `INSERT INTO subscribers(phone,status,requested_at,updated_at,terms_version)
     VALUES(?,'pending',?,?,?) ON CONFLICT(phone) DO UPDATE SET status='pending',
     requested_at=excluded.requested_at, updated_at=excluded.updated_at,
-    confirmed_at=NULL, terms_version=excluded.terms_version`, phone, now, now, TERMS_VERSION).run();
-  return 'Corbin Triples: Reply YES to get automated triple alerts. Frequency varies. Msg & data rates may apply. STOP to quit. Terms: corbinstriples.com/sms-terms/';
+    confirmed_at=NULL, terms_version=excluded.terms_version, consent_source='sms'`, phone, now, now, TERMS_VERSION).run();
+  return SIGNUP_PROMPT;
 }
 
 export async function handleRequest(request, env) {
   const url = new URL(request.url);
+  if (url.pathname === '/subscribe') return webSignup(request, env);
   if (url.pathname === '/health' && request.method === 'GET') {
     return Response.json({ ok: true, alertsEnabled: env.ALERTS_ENABLED === 'true' });
   }
@@ -191,6 +193,8 @@ export async function poll(env, now = Date.now()) {
 
 export async function cleanup(env, now = Date.now()) {
   await env.DB.batch([
+    db(env, 'DELETE FROM signup_limits WHERE expires_at<?', now),
+    db(env, 'DELETE FROM signup_requests WHERE created_at<?', now - 90 * DAY),
     db(env, 'DELETE FROM incoming WHERE received_at<?', now - 7 * DAY),
     db(env, "DELETE FROM subscribers WHERE status='pending' AND updated_at<?", now - 7 * DAY),
     db(env, "DELETE FROM subscribers WHERE status='stopped' AND updated_at<?", now - 90 * DAY),

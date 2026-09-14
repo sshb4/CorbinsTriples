@@ -1,14 +1,17 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { DatabaseSync } from 'node:sqlite';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
+import { webSignup, normalizeUSPhone } from '../src/signup.js';
 import twilio from 'twilio';
 import { incoming, handleRequest, recordEvents, dispatch, poll } from '../src/worker.js';
 import { tripleEvents } from '../src/triples.js';
 
 function setup() {
   const sqlite = new DatabaseSync(':memory:');
-  sqlite.exec(readFileSync(new URL('../migrations/0001_initial.sql', import.meta.url), 'utf8'));
+  for (const migration of readdirSync(new URL('../migrations/', import.meta.url)).sort()) {
+    sqlite.exec(readFileSync(new URL('../migrations/' + migration, import.meta.url), 'utf8'));
+  }
   function prepare(sql) {
     let args = [];
     return {
@@ -187,4 +190,106 @@ test('out-of-order callbacks do not regress delivered or sent messages', async t
   assert.equal(env.sqlite.prepare('SELECT state FROM deliveries').get().state, 'sent');
   for (const MessageStatus of ['delivered', 'sent']) await handleRequest(signedRequest(env, { MessageStatus }, `/status?id=${delivery.id}`), env);
   assert.equal(env.sqlite.prepare('SELECT state FROM deliveries').get().state, 'delivered');
+});
+
+function webEnv() {
+  return { ...setup(), SITE_ORIGIN: 'https://corbinstriples.com', SIGNUPS_ENABLED: 'true', TURNSTILE_SECRET_KEY: 'test-key', MAX_WEB_SIGNUPS_PER_DAY: '100' };
+}
+function signupRequest(env, data = {}, origin = env.SITE_ORIGIN) {
+  return new Request(env.PUBLIC_URL + '/subscribe', { method: 'POST', headers: {
+    Origin: origin, 'Content-Type': 'application/json', 'CF-Connecting-IP': '192.0.2.1'
+  }, body: JSON.stringify({ phone, consent: true, token: 'test-token', ...data }) });
+}
+function mockSignup(t, challenge = {}) {
+  const calls = { texts: 0, verifications: 0 };
+  t.mock.method(globalThis, 'fetch', async (url, options) => {
+    if (url.includes('siteverify')) {
+      calls.verifications++;
+      return Response.json({ success: true, hostname: 'corbinstriples.com', action: 'sms-signup', ...challenge });
+    }
+    assert.ok(url.startsWith('https://api.twilio.com/'));
+    calls.texts++;
+    assert.match(options.body.get('Body'), /Reply YES/);
+    return Response.json({ sid: 'SM' + 'e'.repeat(32) });
+  });
+  return calls;
+}
+
+test('web phone validation normalizes US numbers and rejects Canadian, overseas, and malformed numbers', () => {
+  assert.equal(normalizeUSPhone('(202) 555-0123'), phone);
+  assert.equal(normalizeUSPhone('+1 202-555-0123'), phone);
+  for (const value of ['+14165550123', '+442079460000', 'abc2025550123', '2025550123 ext 2', '', null]) {
+    assert.equal(normalizeUSPhone(value), null);
+  }
+});
+
+test('form requires affirmative consent and an approved origin before contacting providers', async t => {
+  const env = webEnv(); const calls = mockSignup(t);
+  assert.equal((await webSignup(signupRequest(env, { consent: false }), env)).status, 400);
+  assert.equal((await webSignup(signupRequest(env, { consent: 'true' }), env)).status, 400);
+  const foreign = await webSignup(signupRequest(env, {}, 'https://unrelated.example'), env);
+  assert.equal(foreign.status, 403); assert.equal(foreign.headers.get('Access-Control-Allow-Origin'), null);
+  assert.equal((await webSignup(signupRequest(env, { token: '' }), env)).status, 400);
+  assert.equal(calls.texts, 0); assert.equal(calls.verifications, 0);
+});
+
+test('invalid, reused, wrong-host or wrong-action security tokens never send a text', async t => {
+  for (const challenge of [{ success: false }, { hostname: 'other.example' }, { action: 'other-action' }]) {
+    const env = webEnv(); const calls = mockSignup(t, challenge);
+    assert.equal((await webSignup(signupRequest(env), env)).status, 400);
+    assert.equal(calls.texts, 0); assert.equal(row(env), undefined);
+    t.mock.restoreAll();
+  }
+});
+
+test('form requests one confirmation and stores consent source; only YES activates it', async t => {
+  const env = webEnv(); const calls = mockSignup(t); const now = Date.now();
+  const response = await handleRequest(signupRequest(env), env);
+  assert.equal(response.status, 202); assert.equal(response.headers.get('Access-Control-Allow-Origin'), env.SITE_ORIGIN);
+  assert.equal(calls.texts, 1); assert.equal(row(env).status, 'pending'); assert.equal(row(env).consent_source, 'web');
+  assert.equal(env.sqlite.prepare('SELECT state FROM signup_requests').get().state, 'accepted');
+  await incoming(env, message('YES'), now + 1000); assert.equal(row(env).status, 'active');
+});
+
+test('repeated form submissions do not resend immediately or exceed the per-number daily cap', async t => {
+  const env = webEnv(); const calls = mockSignup(t); const now = Date.now();
+  assert.equal((await webSignup(signupRequest(env), env, now)).status, 202);
+  assert.equal((await webSignup(signupRequest(env), env, now + 1000)).status, 429);
+  assert.equal((await webSignup(signupRequest(env), env, now + 11 * 60000)).status, 429);
+  assert.equal(calls.texts, 1);
+});
+
+test('global form daily limit blocks additional SMS, independently of triple-alert allowance', async t => {
+  const env = webEnv(); env.MAX_WEB_SIGNUPS_PER_DAY = '1'; const calls = mockSignup(t);
+  assert.equal((await webSignup(signupRequest(env), env)).status, 202);
+  assert.equal((await webSignup(signupRequest(env, { phone: '+12025550124' }), env)).status, 503);
+  assert.equal(calls.texts, 1);
+});
+
+test('web signup never reverses a STOP or resends to an active subscriber', async t => {
+  const env = webEnv(); const calls = mockSignup(t); await join(env);
+  assert.equal((await webSignup(signupRequest(env), env)).status, 200);
+  await incoming(env, message('STOP'));
+  assert.equal((await webSignup(signupRequest(env), env)).status, 409);
+  assert.equal(row(env).status, 'stopped'); assert.equal(calls.texts, 0);
+});
+
+test('uncertain provider response is reported honestly and not immediately retried', async t => {
+  const env = webEnv(); let sends = 0;
+  t.mock.method(globalThis, 'fetch', async url => {
+    if (url.includes('siteverify')) return Response.json({ success: true, hostname: 'corbinstriples.com', action: 'sms-signup' });
+    sends++; throw new Error('timeout');
+  });
+  assert.equal((await webSignup(signupRequest(env), env)).status, 502);
+  assert.equal((await webSignup(signupRequest(env), env)).status, 429);
+  assert.equal(sends, 1); assert.equal(row(env).status, 'pending');
+  assert.equal(env.sqlite.prepare('SELECT state FROM signup_requests').get().state, 'unknown');
+});
+
+test('disabled web signup cannot send; browser preflight is supported', async t => {
+  const env = webEnv(); env.SIGNUPS_ENABLED = 'false'; const calls = mockSignup(t);
+  assert.equal((await webSignup(signupRequest(env), env)).status, 503); assert.equal(calls.texts, 0);
+  const request = new Request(env.PUBLIC_URL + '/subscribe', { method: 'OPTIONS', headers: { Origin: env.SITE_ORIGIN } });
+  const response = await handleRequest(request, env);
+  assert.equal(response.status, 204); assert.equal(response.headers.get('Access-Control-Allow-Origin'), env.SITE_ORIGIN);
 });

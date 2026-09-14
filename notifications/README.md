@@ -4,18 +4,19 @@ The website stays on GitHub Pages. This separate Cloudflare Worker receives Twil
 
 ## Current state
 
-Implemented and tested locally; not deployed. No phone number has been purchased, no SMS has been sent, and no credentials are in the repo. The homepage says “Coming soon” until its public settings are filled in. Twilio must approve the sender before public enrollment opens.
+Implemented and tested locally; not deployed. The user purchased (520) 777-0150 and is completing Sole Proprietor A2P 10DLC registration. No application SMS has been sent and no credentials are in the repo. The homepage shows the text-to-subscribe link and a phone form with an unchecked consent box. Form submission stays disabled until its API URL and Turnstile site key are configured. Both signup methods require a YES reply before enrollment.
 
 Regular-season games only, US subscribers only. Default capacity: 100 active subscribers. Default automated alert limit: 1,000 attempted recipient messages per UTC calendar month. Signup replies and Twilio/carrier automatic replies are additional billable messages; this limit is not an account-wide spending cap. Configure Twilio billing alerts as well.
 
 ## Accounts and configuration needed
 
 - Cloudflare account with Workers and D1.
-- Upgraded Twilio account and verified US toll-free number.
+- Upgraded Twilio account and the SMS-enabled local US number, approved for a Sole Proprietor A2P 10DLC campaign.
 - Twilio Messaging Service containing that number.
 - A public support email for the page, HELP response, and registration.
+- A Cloudflare Turnstile widget for `corbinstriples.com`: a public site key and a private secret key.
 
-Keep the support email and phone number consistent in `../alerts-config.js`, Worker vars, Twilio registration, and Messaging Service responses. Review the SMS terms/privacy pages and replace the support placeholder before launch. These pages have separate public URLs for the verification submission:
+Keep the support email and phone number consistent in `../alerts-config.js`, Worker vars, Twilio registration, and Messaging Service responses. Review the SMS terms/privacy pages and replace the support placeholder before launch. These pages have separate public URLs for the registration submission:
 
 - https://corbinstriples.com/sms-terms/
 - https://corbinstriples.com/sms-privacy/
@@ -37,6 +38,7 @@ npx wrangler d1 migrations apply corbin-triple-alerts --remote
 npx wrangler secret put TWILIO_ACCOUNT_SID
 npx wrangler secret put TWILIO_AUTH_TOKEN
 npx wrangler secret put TWILIO_MESSAGING_SERVICE_SID
+npx wrangler secret put TURNSTILE_SECRET_KEY
 npm run deploy
 ```
 
@@ -44,7 +46,7 @@ Each `secret put` prompts privately; never put credentials in `alerts-config.js`
 
 ## Set up Twilio
 
-Create a Messaging Service using the verified toll-free number. Set incoming messages to POST to `https://YOUR-WORKER/sms` (send to this webhook, rather than dropping incoming messages). The application supplies its own per-message status callback URL for outbound alerts; preserve its query string.
+Use a Messaging Service linked to the approved Sole Proprietor campaign and local number. Set incoming messages to POST to `https://YOUR-WORKER/sms` (send to this webhook, rather than dropping incoming messages). The application supplies its own per-message status callback URL for outbound alerts; preserve its query string.
 
 Enable Advanced Opt-Out. Set the opt-in keywords to **START and UNSTOP only; remove YES**. YES belongs to this application's confirmation flow. Do not add TRIPLES as a provider-handled keyword. Keep STOP and standard opt-out synonyms. Forward opted-in/out webhooks to the Worker so the subscriber database stays synchronized.
 
@@ -54,9 +56,23 @@ Suggested Advanced Opt-Out replies (replace the email):
 - HELP/INFO: `Corbin Triples: One alert per regular-season triple. Text TRIPLES to join, STOP to quit. Help: YOUR_SUPPORT_EMAIL`
 - STOP: `Corbin Triples: You are unsubscribed. Text START to unblock messages, then TRIPLES to join again.`
 
-Toll-free carriers may replace the STOP response and send their own START response. Twilio handles blocking; the app also cancels pending deliveries when it receives an opt-out. Already-submitted messages may be in flight. START only unblocks delivery; it does not activate a subscription.
+Twilio handles blocking; the app also cancels pending deliveries when it receives an opt-out. Already-submitted messages may be in flight. START only unblocks delivery; it does not activate a subscription.
 
-For toll-free verification, describe the actual independent fan alert program and this opt-in flow: visitor sees the disclosure, texts TRIPLES from their phone, receives the confirmation prompt, and replies YES. Use the real operator details and support email. Twilio approval is external and is not guaranteed by the code.
+For campaign registration, describe the actual independent fan alert program and both opt-in paths:
+
+> End users visit https://corbinstriples.com/, enter their US phone number, and check an unchecked box consenting to recurring automated Corbin Carroll triple alerts. The website displays frequency, message/data rate, STOP/HELP, terms, and privacy disclosures. After submitting, users receive a confirmation text and must reply YES to enroll. Alternatively, users text TRIPLES to (520) 777-0150 and reply YES to the confirmation prompt. STOP unsubscribes; HELP provides assistance.
+
+Use real operator details and a working support email. Registration approval is external and is not guaranteed by the code.
+
+## Web signup setup
+
+Create a Turnstile widget restricted to `corbinstriples.com`. Set `TURNSTILE_SECRET_KEY` using `wrangler secret put` as above. The widget uses action `sms-signup`; the server verifies the token, action, and hostname with Cloudflare before requesting any SMS.
+
+Apply **both migrations**, including `0002_web_signup.sql`, before deploying the updated Worker. Set `SITE_ORIGIN` to the exact website origin. Only that origin receives CORS permission on POST `/subscribe`. There is no public endpoint that accepts arbitrary SMS content or enrolls a number immediately.
+
+Fill `apiBaseUrl` in `../alerts-config.js` with the deployed Worker origin and `turnstileSiteKey` with the widget's public key. The form appears before connection, but cannot submit until the API URL and security key are configured. No local fake-success mode is used. Once registration, credentials, support information, and webhook tests are ready, set `SIGNUPS_ENABLED=true` and deploy. This switch is separate from `ALERTS_ENABLED`, allowing consent-flow testing before game alerts start.
+
+Web requests are limited to 5 per IP per hour, 2 per number per UTC day, and 100 confirmation attempts per UTC day by default (`MAX_WEB_SIGNUPS_PER_DAY`). Recent confirmation requests also have a 10-minute cooldown. Failed attempts count toward limits. IP/phone rate-limit keys are HMAC hashes; raw IP addresses are not stored. Actual signup records necessarily contain the subscriber phone number. Existing active subscribers are not sent another confirmation; stopped subscribers must rejoin by SMS. These limits cover the web form only, not inbound SMS or carrier-generated responses.
 
 ## Test before public launch
 
@@ -67,9 +83,10 @@ Keep `ALERTS_ENABLED=false` while checking the following with a consenting test 
 3. Reply HELP and verify the public support contact.
 4. Reply STOP; verify the database says `stopped` and pending alerts are cancelled.
 5. Text START, then TRIPLES and YES; verify fresh confirmation is required.
-6. Send an explicitly identified test alert from Twilio to that consenting phone; verify delivery and account configuration. Do not label synthetic tests as real triples. Our automated tests cover real MLB detection and the outbox with a mocked provider; they do not replace a real carrier delivery test.
+6. With web signup enabled, enter a consenting test number, leave the checkbox unchecked and verify submission is unavailable. Check it, complete Turnstile, submit, and verify the number is pending until YES. Test repeated requests and STOP.
+7. Send an explicitly identified test alert from Twilio to that consenting phone; verify delivery and account configuration. Do not label synthetic tests as real triples. Our automated tests cover real MLB detection and the outbox with a mocked provider; they do not replace a real carrier delivery test.
 
-When ready, set `ALERTS_START_AT` to the current UTC timestamp, e.g. the output of `node -p 'new Date().toISOString()'`, and `ALERTS_ENABLED=true`. Deploy the Worker. Then fill in `phoneNumber` and `supportEmail` in `../alerts-config.js` and publish the website changes. The button opens a composed SMS; it never sends a text by itself.
+When ready, set `ALERTS_START_AT` to the current UTC timestamp, e.g. the output of `node -p 'new Date().toISOString()'`, and `ALERTS_ENABLED=true`. Deploy the Worker. Confirm the public phone number, support email, API origin, and Turnstile site key in `../alerts-config.js`, then publish the website changes. The button opens a composed SMS; it never sends a text by itself.
 
 ## Operation and limits
 
@@ -82,9 +99,9 @@ When ready, set `ALERTS_START_AT` to the current UTC timestamp, e.g. the output 
 - Twilio status callbacks record accepted/sent/delivered/failed. A scoring change after a message has already gone out cannot retract it.
 - When the monthly alert limit is reached, sends pause. Pending alerts expire six hours after the play. Adjust limits deliberately in Worker vars.
 - Never put the subscriber database, phone numbers, or provider credentials in the public GitHub repository.
-- Privacy cleanup removes webhook IDs after seven days, pending signups after seven days, stopped signups and delivery records after 90 days. Provider logs/backups have their own retention.
+- Privacy cleanup removes webhook IDs after seven days, pending signups after seven days, stopped signups and delivery records after 90 days. Web request records are removed after 90 days and rate-limit hashes after expiry (up to 48 hours plus the next cleanup cycle). Cleanup runs even when alerts are paused. Provider logs/backups have their own retention.
 
-To pause alerts: set `ALERTS_ENABLED=false` and deploy. Incoming STOP handling continues.
+To pause alerts: set `ALERTS_ENABLED=false` and deploy. To pause the public form, also set `SIGNUPS_ENABLED=false`. Incoming STOP handling continues.
 
 ## Local checks
 
@@ -97,4 +114,4 @@ Tests use Node's in-memory SQLite with the real schema, Twilio's signature valid
 
 For local Worker testing, use `npx wrangler d1 migrations apply corbin-triple-alerts --local`, then `npm run dev`. Put local test values in `.dev.vars` (gitignored). Do not configure a live Twilio number to an untested local tunnel.
 
-Reference documentation: [Twilio webhooks](https://www.twilio.com/docs/messaging/guides/webhook-request), [Advanced Opt-Out](https://www.twilio.com/docs/messaging/tutorials/advanced-opt-out), [toll-free verification](https://www.twilio.com/docs/messaging/compliance/toll-free/api-onboarding), [Cloudflare Cron Triggers](https://developers.cloudflare.com/workers/configuration/cron-triggers/).
+Reference documentation: [Twilio webhooks](https://www.twilio.com/docs/messaging/guides/webhook-request), [Advanced Opt-Out](https://www.twilio.com/docs/messaging/tutorials/advanced-opt-out), [Sole Proprietor registration](https://www.twilio.com/docs/messaging/compliance/a2p-10dlc/direct-sole-proprietor-registration-overview-new%20experience), [Turnstile validation](https://developers.cloudflare.com/turnstile/get-started/server-side-validation/), [Cloudflare Cron Triggers](https://developers.cloudflare.com/workers/configuration/cron-triggers/).
