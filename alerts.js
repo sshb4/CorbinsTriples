@@ -7,6 +7,12 @@
     const consent = document.getElementById('sms-consent');
     const status = document.getElementById('sms-form-status');
     const input = document.getElementById('sms-phone');
+    const showResult = (message, state) => {
+      status.textContent = message;
+      status.dataset.state = state;
+      status.focus({ preventScroll: true });
+      status.scrollIntoView({ block: 'center', behavior: 'auto' });
+    };
     let token = '';
     let widget;
     let busy = false;
@@ -39,7 +45,9 @@
             'expired-callback': () => { token = ''; updateButton(); },
             'error-callback': () => {
               token = ''; updateButton();
-              status.textContent = 'The security check could not load. Refresh to try again.';
+              if (!status.dataset.state) {
+                status.textContent = 'The security check could not load. Refresh to try again.';
+              }
             }
           });
         };
@@ -74,6 +82,7 @@
         return;
       }
       busy = true; updateButton();
+      delete status.dataset.state;
       status.textContent = 'Submitting your signup request…';
       try {
         const response = await fetch(endpoint, {
@@ -83,10 +92,10 @@
           signal: AbortSignal.timeout(30_000)
         });
         const result = await response.json();
-        status.textContent = result.message || 'Something went wrong. Please try again later.';
+        showResult(result.message || 'Something went wrong. Please try again later.', response.ok && result.message ? 'success' : 'error');
         if (response.ok) form.reset();
       } catch {
-        status.textContent = 'We could not confirm your request. If a text arrives, reply YES; otherwise, try again later.';
+        showResult('We could not confirm whether your request was saved. Please try again later.', 'error');
       } finally {
         busy = false; token = ''; updateButton();
         if (widget !== undefined) window.turnstile.reset(widget);

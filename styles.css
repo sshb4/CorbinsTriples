@@ -1070,6 +1070,18 @@
 .sms-form .sms-consent { display: flex; align-items: flex-start; gap: 10px; margin: 14px 0; cursor: pointer; font-weight: 400; line-height: 1.5; }
 .sms-consent input { width: 18px; height: 18px; margin: 2px 0 0; flex: 0 0 18px; accent-color: var(--accent); }
 .sms-form-status { margin: 10px 0 0; font-size: .78rem; color: var(--muted); }
+.sms-form-status[data-state] {
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  border-radius: 8px;
+  background: var(--panel-solid);
+  color: var(--text);
+  font-size: .94rem;
+  line-height: 1.6;
+}
+.sms-form-status[data-state="error"] { color: var(--accent-deep); }
+.sms-form-status:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 #sms-turnstile { max-width: 100%; }
 .alerts-action .sms-button { background: transparent; color: var(--accent); border-color: var(--line); }
 .alerts-action .sms-button:hover { background: var(--accent-soft); border-color: var(--accent); }
