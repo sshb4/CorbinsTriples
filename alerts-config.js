@@ -2,7 +2,7 @@
 // The number enables the signup link; backend activation is configured separately.
 window.CORBIN_ALERTS = {
   phoneNumber: '+15207770150',
-  supportEmail: '',
+  supportEmail: 'ssh.b.designs@gmail.com',
   apiBaseUrl: '',
   turnstileSiteKey: ''
 };

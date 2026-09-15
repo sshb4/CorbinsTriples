@@ -13,7 +13,7 @@
     "ALERTS_START_AT": "",
     "PUBLIC_URL": "",
     "TWILIO_PHONE_NUMBER": "+15207770150",
-    "SUPPORT_EMAIL": "",
+    "SUPPORT_EMAIL": "ssh.b.designs@gmail.com",
     "MAX_SUBSCRIBERS": "100",
     "MAX_ALERTS_PER_MONTH": "1000"
   },
