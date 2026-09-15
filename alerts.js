@@ -24,6 +24,7 @@
     let token = '';
     let widget;
     let busy = false;
+    let resizeWidget = () => {};
     let endpoint;
     try {
       const base = new URL(config.apiBaseUrl);
@@ -34,17 +35,32 @@
     if (endpoint && config.turnstileSiteKey) {
       status.textContent = 'Complete the security check, then request your confirmation text.';
       window.onCorbinTurnstileReady = () => {
-        widget = window.turnstile.render('#sms-turnstile', {
-          sitekey: config.turnstileSiteKey,
-          action: 'sms-signup',
-          size: 'flexible',
-          callback: value => { token = value; updateButton(); },
-          'expired-callback': () => { token = ''; updateButton(); },
-          'error-callback': () => {
-            token = ''; updateButton();
-            status.textContent = 'The security check could not load. Refresh to try again.';
-          }
-        });
+        const container = document.getElementById('sms-turnstile');
+        let widgetSize;
+        resizeWidget = () => {
+          const size = container.getBoundingClientRect().width < 300 ? 'compact' : 'flexible';
+          if (busy || size === widgetSize) return;
+          if (widget !== undefined) window.turnstile.remove(widget);
+          token = ''; updateButton();
+          widgetSize = size;
+          widget = window.turnstile.render('#sms-turnstile', {
+            sitekey: config.turnstileSiteKey,
+            action: 'sms-signup',
+            size,
+            callback: value => { token = value; updateButton(); },
+            'expired-callback': () => { token = ''; updateButton(); },
+            'error-callback': () => {
+              token = ''; updateButton();
+              status.textContent = 'The security check could not load. Refresh to try again.';
+            }
+          });
+        };
+        resizeWidget();
+        if (window.ResizeObserver) {
+          new ResizeObserver(resizeWidget).observe(container);
+        } else {
+          window.addEventListener('resize', resizeWidget);
+        }
       };
       const script = document.createElement('script');
       script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onCorbinTurnstileReady&render=explicit';
@@ -72,6 +88,7 @@
       } finally {
         busy = false; token = ''; updateButton();
         if (widget !== undefined) window.turnstile.reset(widget);
+        resizeWidget();
       }
     });
   }

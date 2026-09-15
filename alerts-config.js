@@ -3,6 +3,6 @@
 window.CORBIN_ALERTS = {
   phoneNumber: '+15207770150',
   supportEmail: 'ssh.b.designs@gmail.com',
-  apiBaseUrl: '',
-  turnstileSiteKey: ''
+  apiBaseUrl: 'https://corbin-triple-alerts.sashacbates.workers.dev',
+  turnstileSiteKey: '0x4AAAAAAE03ujPJq5ww2YSZ'
 };
