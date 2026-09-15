@@ -13,7 +13,7 @@
     link.href = `sms:${phone}${isApple ? '&' : '?'}body=TRIPLES`;
     link.hidden = false;
     pending.hidden = true;
-    instructions.textContent = `Or text TRIPLES to ${phone.replace(/^\+1(\d{3})(\d{3})(\d{4})$/, '($1) $2-$3')} for Corbin Triples alerts from Sasha Bates. Reply YES to confirm.`;
+    instructions.textContent = `Or text TRIPLES to ${phone.replace(/^\+1(\d{3})(\d{3})(\d{4})$/, '($1) $2-$3')} for Corbin Triples alerts. Reply YES to confirm.`;
   }
   const form = document.getElementById('sms-form');
   if (form) {
