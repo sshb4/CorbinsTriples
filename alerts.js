@@ -1,20 +1,6 @@
 (() => {
   const config = window.CORBIN_ALERTS || {};
-  const phone = config.phoneNumber;
-  const ready = /^\+1\d{10}$/.test(phone || '');
   const hasSupportEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(config.supportEmail || '');
-  const link = document.getElementById('sms-subscribe');
-  const pending = document.getElementById('sms-coming-soon');
-  const instructions = document.getElementById('sms-instructions');
-  if (link && ready) {
-    // iOS uses &body while Android uses ?body for a composed SMS.
-    const isApple = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-    link.href = `sms:${phone}${isApple ? '&' : '?'}body=TRIPLES`;
-    link.hidden = false;
-    pending.hidden = true;
-    instructions.textContent = `Or text TRIPLES to ${phone.replace(/^\+1(\d{3})(\d{3})(\d{4})$/, '($1) $2-$3')} for Corbin Triples alerts. Reply YES to confirm.`;
-  }
   const form = document.getElementById('sms-form');
   if (form) {
     const submit = document.getElementById('sms-form-submit');
@@ -30,10 +16,12 @@
       const base = new URL(config.apiBaseUrl);
       if (base.protocol === 'https:') endpoint = new URL('/subscribe', base).href;
     } catch { /* Keep the form closed until the backend is connected. */ }
-    const updateButton = () => { submit.disabled = busy || !token || !consent.checked; };
-    consent.addEventListener('change', updateButton);
+    // Keep the action available so validation explains what is missing.
+    // Consent and security verification are still required before any request.
+    const updateButton = () => { submit.disabled = busy; };
+    updateButton();
     if (endpoint && config.turnstileSiteKey) {
-      status.textContent = 'Complete the security check, then request your confirmation text.';
+      status.textContent = 'Complete the security check, then submit your signup request.';
       window.onCorbinTurnstileReady = () => {
         const container = document.getElementById('sms-turnstile');
         let widgetSize;
@@ -70,9 +58,23 @@
     }
     form.addEventListener('submit', async event => {
       event.preventDefault();
-      if (!endpoint || !token || !consent.checked || busy || !form.reportValidity()) return;
+      if (busy || !form.reportValidity()) return;
+      if (!consent.checked) {
+        status.textContent = 'Please check the consent box to request text alerts.';
+        consent.focus();
+        return;
+      }
+      if (!endpoint || !config.turnstileSiteKey) {
+        status.textContent = 'Phone signup is not open yet. Please check back soon.';
+        return;
+      }
+      if (!token) {
+        status.textContent = 'Complete the security check below before requesting your text. If it has not loaded, refresh the page and try again.';
+        document.getElementById('sms-turnstile').scrollIntoView({ block: 'center', behavior: 'smooth' });
+        return;
+      }
       busy = true; updateButton();
-      status.textContent = 'Requesting your confirmation text…';
+      status.textContent = 'Submitting your signup request…';
       try {
         const response = await fetch(endpoint, {
           method: 'POST',

@@ -22,6 +22,7 @@ export async function incoming(env, params, now = Date.now()) {
   if (advanced === 'STOP' || STOP.has(keyword)) {
     await env.DB.batch([
       db(env, "UPDATE subscribers SET status='stopped', updated_at=? WHERE phone=?", now, phone),
+      db(env, 'DELETE FROM signup_waitlist WHERE phone=?', phone),
       db(env, "UPDATE deliveries SET state='cancelled' WHERE phone=? AND state='pending'", phone)
     ]);
     // Twilio/carriers acknowledge standard STOP commands themselves.
@@ -193,6 +194,7 @@ export async function poll(env, now = Date.now()) {
 
 export async function cleanup(env, now = Date.now()) {
   await env.DB.batch([
+    db(env, 'DELETE FROM signup_waitlist WHERE created_at<?', now - 90 * DAY),
     db(env, 'DELETE FROM signup_limits WHERE expires_at<?', now),
     db(env, 'DELETE FROM signup_requests WHERE created_at<?', now - 90 * DAY),
     db(env, 'DELETE FROM incoming WHERE received_at<?', now - 7 * DAY),

@@ -34,8 +34,9 @@ export async function webSignup(request, env, now = Date.now()) {
     ...headers, 'Access-Control-Allow-Methods': 'POST, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type', 'Access-Control-Max-Age': '600'
   } });
   if (request.method !== 'POST') return reply(405, 'Use the signup form to subscribe.');
-  if (env.SIGNUPS_ENABLED !== 'true' || !env.TURNSTILE_SECRET_KEY || !env.TWILIO_AUTH_TOKEN ||
-      !env.TWILIO_ACCOUNT_SID || !env.TWILIO_MESSAGING_SERVICE_SID || !env.SUPPORT_EMAIL) {
+  const waitlist = env.SIGNUP_MODE === 'waitlist';
+  if (env.SIGNUPS_ENABLED !== 'true' || !env.TURNSTILE_SECRET_KEY || !env.SUPPORT_EMAIL ||
+      (!waitlist && (!env.TWILIO_AUTH_TOKEN || !env.TWILIO_ACCOUNT_SID || !env.TWILIO_MESSAGING_SERVICE_SID))) {
     return reply(503, 'Phone signup is not open yet. Please check back soon.');
   }
   if (!request.headers.get('Content-Type')?.startsWith('application/json')) return reply(415, 'Invalid form submission.');
@@ -74,6 +75,21 @@ export async function webSignup(request, env, now = Date.now()) {
     const subscriber = await db(env, 'SELECT status,requested_at FROM subscribers WHERE phone=?', phone).first();
     if (subscriber?.status === 'active') return reply(200, 'If this number is already subscribed, you are all set. Otherwise, check your texts and reply YES to confirm.');
     if (subscriber?.status === 'stopped') return reply(409, 'To rejoin after stopping texts, text START to (520) 777-0150, then TRIPLES.');
+    if (waitlist) {
+      const savedMessage = 'Your request is saved. Text alerts have not launched yet. After launch, we will send a confirmation text; reply YES to activate your subscription. No text has been sent now.';
+      const existing = await db(env, 'SELECT phone FROM signup_waitlist WHERE phone=?', phone).first();
+      if (existing) return reply(200, savedMessage);
+      const capacity = Math.max(1, Math.min(parseInt(env.MAX_SUBSCRIBERS, 10) || 100, 1000));
+      const dailyLimit = Math.max(1, Math.min(parseInt(env.MAX_WEB_SIGNUPS_PER_DAY, 10) || 100, 1000));
+      if (!await reserve(env, `global:${day}`, dailyLimit, now + 48 * HOUR)) return reply(503, 'Signups are paused for today. Please try tomorrow.');
+      const saved = await db(env, `INSERT OR IGNORE INTO signup_waitlist(phone,created_at,terms_version)
+        SELECT ?,?,? WHERE (SELECT COUNT(*) FROM signup_waitlist) < ?`, phone, now, TERMS_VERSION, capacity).run();
+      if (!saved.meta.changes) {
+        if (await db(env, 'SELECT phone FROM signup_waitlist WHERE phone=?', phone).first()) return reply(200, savedMessage);
+        return reply(503, 'The list is full right now. Please try again later.');
+      }
+      return reply(202, savedMessage);
+    }
     if (subscriber && now - subscriber.requested_at < 10 * 60_000) return reply(429, 'A confirmation was recently requested. Check your texts, or try again in 10 minutes.');
     const active = await db(env, "SELECT COUNT(*) AS count FROM subscribers WHERE status='active'").first();
     const capacity = Math.max(1, Math.min(parseInt(env.MAX_SUBSCRIBERS, 10) || 100, 1000));

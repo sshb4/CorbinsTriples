@@ -293,3 +293,50 @@ test('disabled web signup cannot send; browser preflight is supported', async t 
   const response = await handleRequest(request, env);
   assert.equal(response.status, 204); assert.equal(response.headers.get('Access-Control-Allow-Origin'), env.SITE_ORIGIN);
 });
+
+test('prelaunch saves consent without Twilio credentials or active enrollment', async t => {
+  const env = webEnv(); env.SIGNUP_MODE = 'waitlist';
+  delete env.TWILIO_ACCOUNT_SID; delete env.TWILIO_AUTH_TOKEN; delete env.TWILIO_MESSAGING_SERVICE_SID;
+  const calls = mockSignup(t);
+  const now = Date.now();
+  const response = await webSignup(signupRequest(env), env, now);
+  assert.equal(response.status, 202);
+  assert.match((await response.json()).message, /No text has been sent/);
+  const saved = env.sqlite.prepare('SELECT * FROM signup_waitlist').get();
+  assert.equal(saved.phone, phone); assert.equal(saved.created_at, now);
+  assert.equal(saved.terms_version, '2026-09-15'); assert.equal(saved.consent_source, 'web');
+  assert.equal(row(env), undefined);
+  await incoming(env, message('YES'), now + 1000);
+  assert.equal(row(env), undefined);
+  assert.equal((await webSignup(signupRequest(env), env, now + 1000)).status, 200);
+  assert.equal(env.sqlite.prepare('SELECT COUNT(*) AS n FROM signup_waitlist').get().n, 1);
+  assert.equal(calls.texts, 0);
+});
+
+test('prelaunch enforces consent, verification, capacity and paused switch', async t => {
+  const env = webEnv(); env.SIGNUP_MODE = 'waitlist'; env.MAX_SUBSCRIBERS = '1';
+  const calls = mockSignup(t);
+  assert.equal((await webSignup(signupRequest(env, {consent:false}), env)).status, 400);
+  assert.equal((await webSignup(signupRequest(env, {token:''}), env)).status, 400);
+  assert.equal((await webSignup(signupRequest(env, {}, 'https://other.example'), env)).status, 403);
+  assert.equal((await webSignup(signupRequest(env), env)).status, 202);
+  assert.equal((await webSignup(signupRequest(env, {phone:'+12025550124'}), env)).status, 503);
+  env.SIGNUPS_ENABLED = 'false';
+  assert.equal((await webSignup(signupRequest(env), env)).status, 503);
+  assert.equal(calls.texts, 0);
+});
+
+test('prelaunch rejects failed verification and respects STOP and retention', async t => {
+  const env = webEnv(); env.SIGNUP_MODE = 'waitlist';
+  const calls = mockSignup(t, {success:false});
+  assert.equal((await webSignup(signupRequest(env), env)).status, 400);
+  assert.equal(env.sqlite.prepare('SELECT COUNT(*) AS n FROM signup_waitlist').get().n, 0);
+  const now=Date.now();
+  env.sqlite.prepare('INSERT INTO signup_waitlist(phone,created_at,terms_version) VALUES(?,?,?)').run(phone,now,'test');
+  await incoming(env,message('STOP'),now);
+  assert.equal(env.sqlite.prepare('SELECT COUNT(*) AS n FROM signup_waitlist').get().n, 0);
+  env.sqlite.prepare('INSERT INTO signup_waitlist(phone,created_at,terms_version) VALUES(?,?,?)').run(phone,now-91*86400000,'test');
+  await poll(env,now);
+  assert.equal(env.sqlite.prepare('SELECT COUNT(*) AS n FROM signup_waitlist').get().n, 0);
+  assert.equal(calls.texts,0);
+});

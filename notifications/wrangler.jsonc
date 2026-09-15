@@ -8,6 +8,7 @@
   "vars": {
     "ALERTS_ENABLED": "false",
     "SIGNUPS_ENABLED": "false",
+    "SIGNUP_MODE": "waitlist",
     "SITE_ORIGIN": "https://corbinstriples.com",
     "MAX_WEB_SIGNUPS_PER_DAY": "100",
     "ALERTS_START_AT": "",

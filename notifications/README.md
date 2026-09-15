@@ -4,7 +4,7 @@ The website stays on GitHub Pages. This separate Cloudflare Worker receives Twil
 
 ## Current state
 
-Implemented and tested locally; not deployed. The user purchased (520) 777-0150 and is completing Sole Proprietor A2P 10DLC registration. No application SMS has been sent and no credentials are in the repo. The homepage shows the text-to-subscribe link and a phone form with an unchecked consent box. Form submission stays disabled until its API URL and Turnstile site key are configured. Both signup methods require a YES reply before enrollment.
+Implemented and tested locally; not deployed. The user purchased (520) 777-0150 and is completing Sole Proprietor A2P 10DLC registration. No application SMS has been sent and no credentials are in the repo. The homepage shows only the phone form with an unchecked consent box. Pre-launch collection saves requests without sending texts. A YES reply to a later confirmation text is required before enrollment. Keyword support is retained in the backend for after approval.
 
 Regular-season games only, US subscribers only. Default capacity: 100 active subscribers. Default automated alert limit: 1,000 attempted recipient messages per UTC calendar month. Signup replies and Twilio/carrier automatic replies are additional billable messages; this limit is not an account-wide spending cap. Configure Twilio billing alerts as well.
 
@@ -58,11 +58,10 @@ Suggested Advanced Opt-Out replies (replace the email):
 
 Twilio handles blocking; the app also cancels pending deliveries when it receives an opt-out. Already-submitted messages may be in flight. START only unblocks delivery; it does not activate a subscription.
 
-For campaign registration, describe the actual independent fan alert program and both opt-in paths:
-
-> End users visit https://corbinstriples.com/, enter their US phone number, and check an unchecked box consenting to recurring automated Corbin Carroll triple alerts. The website displays frequency, message/data rate, STOP/HELP, terms, and privacy disclosures. After submitting, users receive a confirmation text and must reply YES to enroll. Alternatively, users text TRIPLES to (520) 777-0150 and reply YES to the confirmation prompt. STOP unsubscribes; HELP provides assistance.
-
-Use real operator details and a working support email. Registration approval is external and is not guaranteed by the code.
+For the current pre-launch campaign submission, describe only the website form.
+The keyword implementation is retained for a later launch; the public site does
+not advertise it during review. Use the current campaign wording at the end of
+this document rather than describing the future keyword flow.
 
 ## Web signup setup
 
@@ -115,3 +114,36 @@ Tests use Node's in-memory SQLite with the real schema, Twilio's signature valid
 For local Worker testing, use `npx wrangler d1 migrations apply corbin-triple-alerts --local`, then `npm run dev`. Put local test values in `.dev.vars` (gitignored). Do not configure a live Twilio number to an untested local tunnel.
 
 Reference documentation: [Twilio webhooks](https://www.twilio.com/docs/messaging/guides/webhook-request), [Advanced Opt-Out](https://www.twilio.com/docs/messaging/tutorials/advanced-opt-out), [Sole Proprietor registration](https://www.twilio.com/docs/messaging/compliance/a2p-10dlc/direct-sole-proprietor-registration-overview-new%20experience), [Turnstile validation](https://developers.cloudflare.com/turnstile/get-started/server-side-validation/), [Cloudflare Cron Triggers](https://developers.cloudflare.com/workers/configuration/cron-triggers/).
+
+## Pre-launch signup collection (September 15)
+
+Use `SIGNUP_MODE=waitlist`, `SIGNUPS_ENABLED=true`, and `ALERTS_ENABLED=false`
+for real database-only collection before campaign approval. Turnstile validation,
+US-number validation, affirmative consent, per-IP/per-number limits, daily limits,
+and the list capacity still apply. No Twilio credentials are needed for this mode.
+Requests go into `signup_waitlist` with their original consent timestamp/version;
+they do not create active subscribers. Repeated requests do not extend retention.
+STOP removes saved requests; cleanup deletes them after 90 days. Support can remove
+requests by phone from this table when asked by the number owner.
+
+For the existing manually initialized D1 database, run **only**
+`migrations/0003_waitlist.sql` in its Console before deploying this Worker.
+Do not rerun migrations 0001/0002 over the existing tables. Publish the homepage,
+policy pages and `alerts.js` changes together with enabling collection.
+
+After approval, saved requests still require a confirmation text and a YES reply.
+There is deliberately no automatic waitlist sender in this release: enabling
+alerts or changing signup mode does not send to or enroll saved requests. Prepare
+and test that controlled launch step before promising that confirmations were sent.
+The direct web-confirmation flow remains available with `SIGNUP_MODE=sms` after
+approval; its existing Twilio credentials and settings are required.
+
+Suggested campaign-flow explanation: Visitors to https://corbinstriples.com/#sms-alerts
+enter a US phone number, check an unchecked recurring-SMS consent box, complete
+Turnstile, and submit. Before launch, we store the number and consent request and
+show that no text was sent. After approval and launch, we send a confirmation text;
+users must reply YES before enrollment. The website form is the only advertised
+signup method during review. Frequency varies; message and data rates may
+apply; STOP cancels and HELP provides support. Terms:
+https://corbinstriples.com/sms-terms/ . Privacy:
+https://corbinstriples.com/sms-privacy/ .
