@@ -1,6 +1,5 @@
 import { validateRequest } from 'twilio/lib/webhooks/webhooks.js';
 import { tripleEvents, TEAM_ID } from './triples.js';
-import { TERMS_VERSION, SIGNUP_PROMPT } from './messages.js';
 import { webSignup } from './signup.js';
 
 const MINUTE = 60_000;
@@ -28,11 +27,11 @@ export async function incoming(env, params, now = Date.now()) {
     // Twilio/carriers acknowledge standard STOP commands themselves.
     return '';
   }
-  // Configure Advanced Opt-Out's START reply to direct people to text TRIPLES.
+  // START/UNSTOP only remove the carrier block; they do not grant new consent.
   // START unblocks the sender; it never silently enrolls somebody.
   if (advanced === 'START' || advanced === 'HELP') return '';
   if (keyword === 'HELP' || keyword === 'INFO') {
-    return `Corbin Triples alerts. Text TRIPLES to join, STOP to quit. Help: ${env.SUPPORT_EMAIL}`;
+    return `Corbin Triples: Help: ${env.SUPPORT_EMAIL}. Reply STOP to cancel. Msg & data rates may apply.`;
   }
   if (keyword === 'START' || keyword === 'UNSTOP') return '';
   if (params.FromCountry !== 'US') return 'Corbin Triples alerts currently support US numbers only.';
@@ -41,7 +40,7 @@ export async function incoming(env, params, now = Date.now()) {
   if (keyword === 'YES') {
     if (subscriber?.status === 'active') return '';
     if (subscriber?.status !== 'pending' || now - subscriber.requested_at > 15 * MINUTE) {
-      return 'Text TRIPLES to start a new signup. Then reply YES within 15 minutes.';
+      return 'Corbin Triples: Request alerts at corbinstriples.com. Reply YES within 15 minutes of your confirmation text.';
     }
     const result = await db(env, `UPDATE subscribers SET status='active', confirmed_at=?, updated_at=?
       WHERE phone=? AND status='pending' AND requested_at>=?
@@ -51,14 +50,8 @@ export async function incoming(env, params, now = Date.now()) {
       ? 'Corbin Triples: You are in! One text per regular-season triple. Frequency varies. Msg & data rates may apply. Reply STOP to quit, HELP for help.'
       : 'Corbin Triples: The list is full right now. Please try again later.';
   }
-  if (keyword !== 'TRIPLES') return '';
-  if (subscriber?.status === 'active') return 'Corbin Triples: You are already subscribed. Reply STOP to quit, HELP for help.';
-  if (subscriber?.status === 'pending' && now - subscriber.requested_at < 10 * MINUTE) return '';
-  await db(env, `INSERT INTO subscribers(phone,status,requested_at,updated_at,terms_version)
-    VALUES(?,'pending',?,?,?) ON CONFLICT(phone) DO UPDATE SET status='pending',
-    requested_at=excluded.requested_at, updated_at=excluded.updated_at,
-    confirmed_at=NULL, terms_version=excluded.terms_version, consent_source='sms'`, phone, now, now, TERMS_VERSION).run();
-  return SIGNUP_PROMPT;
+  // New subscriptions originate only from the website consent form.
+  return '';
 }
 
 export async function handleRequest(request, env) {

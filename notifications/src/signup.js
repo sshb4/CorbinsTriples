@@ -74,7 +74,7 @@ export async function webSignup(request, env, now = Date.now()) {
     if (!await reserve(env, phoneKey, 2, now + 48 * HOUR)) return reply(429, 'A signup was already requested for this number. Please check your texts or try tomorrow.');
     const subscriber = await db(env, 'SELECT status,requested_at FROM subscribers WHERE phone=?', phone).first();
     if (subscriber?.status === 'active') return reply(200, 'If this number is already subscribed, you are all set. Otherwise, check your texts and reply YES to confirm.');
-    if (subscriber?.status === 'stopped') return reply(409, 'To rejoin after stopping texts, text START to (520) 777-0150, then TRIPLES.');
+    if (subscriber?.status === 'stopped') return reply(409, `To rejoin after stopping texts, contact ${env.SUPPORT_EMAIL}.`);
     if (waitlist) {
       const savedMessage = 'Your request is saved. Text alerts have not launched yet. After launch, we will send a confirmation text; reply YES to activate your subscription. No text has been sent now.';
       const existing = await db(env, 'SELECT phone FROM signup_waitlist WHERE phone=?', phone).first();

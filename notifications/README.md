@@ -4,7 +4,7 @@ The website stays on GitHub Pages. This separate Cloudflare Worker receives Twil
 
 ## Current state
 
-Implemented and tested locally; not deployed. The user purchased (520) 777-0150 and is completing Sole Proprietor A2P 10DLC registration. No application SMS has been sent and no credentials are in the repo. The homepage shows only the phone form with an unchecked consent box. Pre-launch collection saves requests without sending texts. A YES reply to a later confirmation text is required before enrollment. Keyword support is retained in the backend for after approval.
+Implemented and tested locally; not deployed. The user purchased (520) 777-0150 and is completing Sole Proprietor A2P 10DLC registration. No application SMS has been sent and no credentials are in the repo. The homepage shows only the phone form with an unchecked consent box. Pre-launch collection saves requests without sending texts. A YES reply to a later confirmation text is required before enrollment. Keyword signup is disabled; only the website form collects new requests.
 
 Regular-season games only, US subscribers only. Default capacity: 100 active subscribers. Default automated alert limit: 1,000 attempted recipient messages per UTC calendar month. Signup replies and Twilio/carrier automatic replies are additional billable messages; this limit is not an account-wide spending cap. Configure Twilio billing alerts as well.
 
@@ -52,15 +52,14 @@ Enable Advanced Opt-Out. Set the opt-in keywords to **START and UNSTOP only; rem
 
 Suggested Advanced Opt-Out replies (replace the email):
 
-- START/UNSTOP: `Corbin Triples: Messages unblocked. Text TRIPLES, then YES, to subscribe to triple alerts. STOP to quit.`
-- HELP/INFO: `Corbin Triples: One alert per regular-season triple. Text TRIPLES to join, STOP to quit. Help: YOUR_SUPPORT_EMAIL`
-- STOP: `Corbin Triples: You are unsubscribed. Text START to unblock messages, then TRIPLES to join again.`
+- START/UNSTOP: `Corbin Triples: Messages unblocked. You are not subscribed. For help rejoining, contact ssh.b.designs@gmail.com.`
+- HELP/INFO: `Corbin Triples: Help: ssh.b.designs@gmail.com. Reply STOP to cancel. Msg & data rates may apply.`
+- STOP: `Corbin Triples: You are unsubscribed and will receive no more alerts. For help, contact ssh.b.designs@gmail.com.`
 
 Twilio handles blocking; the app also cancels pending deliveries when it receives an opt-out. Already-submitted messages may be in flight. START only unblocks delivery; it does not activate a subscription.
 
 For the current pre-launch campaign submission, describe only the website form.
-The keyword implementation is retained for a later launch; the public site does
-not advertise it during review. Use the current campaign wording at the end of
+Keyword signup is disabled in the Worker and not advertised on the site. Use the current campaign wording at the end of
 this document rather than describing the future keyword flow.
 
 ## Web signup setup
@@ -77,15 +76,15 @@ Web requests are limited to 5 per IP per hour, 2 per number per UTC day, and 100
 
 Keep `ALERTS_ENABLED=false` while checking the following with a consenting test phone (these are real, billable texts):
 
-1. Text TRIPLES. Receive the opt-in prompt. The database should say `pending`.
+1. Submit the website form with affirmative consent in SMS mode. Receive the opt-in prompt. The database should say `pending`.
 2. Reply YES within 15 minutes. Receive confirmation. The database should say `active`.
 3. Reply HELP and verify the public support contact.
 4. Reply STOP; verify the database says `stopped` and pending alerts are cancelled.
-5. Text START, then TRIPLES and YES; verify fresh confirmation is required.
+5. Text START and then YES after STOP; verify neither re-enrolls the number. Rejoining requires support and fresh website consent.
 6. With web signup enabled, enter a consenting test number, leave the checkbox unchecked and verify continuing saves no number and makes no signup request. Check it, complete Turnstile, submit, and verify the number is pending until YES. Test repeated requests and STOP.
 7. Send an explicitly identified test alert from Twilio to that consenting phone; verify delivery and account configuration. Do not label synthetic tests as real triples. Our automated tests cover real MLB detection and the outbox with a mocked provider; they do not replace a real carrier delivery test.
 
-When ready, set `ALERTS_START_AT` to the current UTC timestamp, e.g. the output of `node -p 'new Date().toISOString()'`, and `ALERTS_ENABLED=true`. Deploy the Worker. Confirm the public phone number, support email, API origin, and Turnstile site key in `../alerts-config.js`, then publish the website changes. The button opens a composed SMS; it never sends a text by itself.
+When ready, set `ALERTS_START_AT` to the current UTC timestamp, e.g. the output of `node -p 'new Date().toISOString()'`, and `ALERTS_ENABLED=true`. Deploy the Worker. Confirm the public phone number, support email, API origin, and Turnstile site key in `../alerts-config.js`, then publish the website changes. The form submits only with affirmative consent and security verification.
 
 ## Operation and limits
 

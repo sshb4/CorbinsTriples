@@ -36,8 +36,11 @@ function setup() {
 const phone = '+12025550123';
 const message = (Body, more = {}) => ({ From: phone, FromCountry: 'US', Body, ...more });
 const row = env => env.sqlite.prepare('SELECT * FROM subscribers WHERE phone=?').get(phone);
+function pending(env, now, number = phone) {
+  env.sqlite.prepare("INSERT OR REPLACE INTO subscribers(phone,status,requested_at,updated_at,terms_version,consent_source) VALUES(?,'pending',?,?,?,'web')").run(number, now, now, 'test');
+}
 async function join(env, now = Date.now() - 1000, number = phone) {
-  await incoming(env, message('TRIPLES', { From: number }), now - 1000);
+  pending(env, now - 1000, number);
   await incoming(env, message('YES', { From: number }), now);
 }
 const fixture = JSON.parse(readFileSync(new URL('./triple.fixture.json', import.meta.url)));
@@ -79,19 +82,19 @@ test('two triples in one game remain distinct; postseason is excluded', () => {
 test('subscription requires YES, expires after 15 minutes, and rejects non-US signups', async () => {
   const env = setup();
   await incoming(env, message('YES'), 10000); assert.equal(row(env), undefined);
-  await incoming(env, message('TRIPLES'), 10000); assert.equal(row(env).status, 'pending');
+  pending(env, 10000); assert.equal(row(env).status, 'pending');
   await incoming(env, message('YES'), 10000 + 16 * 60000); assert.equal(row(env).status, 'pending');
-  await incoming(env, message('TRIPLES'), 10000 + 17 * 60000);
+  pending(env, 10000 + 17 * 60000);
   await incoming(env, message('YES'), 10000 + 18 * 60000); assert.equal(row(env).status, 'active');
-  const other = setup(); await incoming(other, message('TRIPLES', { FromCountry: 'CA' }));
-  assert.equal(row(other), undefined);
+  const other = setup(); pending(other, 10000); await incoming(other, message('YES', { FromCountry: 'CA' }), 11000);
+  assert.equal(row(other).status, 'pending');
 });
 
 test('capacity applies at confirmation, and repeated requests do not spam replies', async () => {
   const env = setup(); env.MAX_SUBSCRIBERS = '1';
   await join(env);
   const second = message('TRIPLES', { From: '+12025550124' });
-  await incoming(env, second);
+  pending(env, Date.now(), second.From);
   assert.equal(await incoming(env, second), '');
   assert.match(await incoming(env, { ...second, Body: 'YES' }), /full/);
   assert.equal(env.sqlite.prepare("SELECT COUNT(*) n FROM subscribers WHERE status='active'").get().n, 1);
@@ -108,11 +111,12 @@ test('STOP cancels pending alerts, and START or stale YES cannot silently re-enr
 
 test('forged webhooks are rejected; signed requests work and repeated SID is ignored', async () => {
   const env = setup();
-  const forged = signedRequest(env, message('TRIPLES')); forged.headers.set('X-Twilio-Signature', 'fake');
-  assert.equal((await handleRequest(forged, env)).status, 403); assert.equal(row(env), undefined);
-  const response = await handleRequest(signedRequest(env, message('TRIPLES')), env);
-  assert.equal(response.status, 200); assert.match(await response.text(), /Reply YES/);
-  assert.doesNotMatch(await (await handleRequest(signedRequest(env, message('TRIPLES')), env)).text(), /<Message>/);
+  pending(env, Date.now());
+  const forged = signedRequest(env, message('YES')); forged.headers.set('X-Twilio-Signature', 'fake');
+  assert.equal((await handleRequest(forged, env)).status, 403); assert.equal(row(env).status, 'pending');
+  const response = await handleRequest(signedRequest(env, message('YES')), env);
+  assert.equal(response.status, 200); assert.match(await response.text(), /You are in/);
+  assert.doesNotMatch(await (await handleRequest(signedRequest(env, message('YES')), env)).text(), /<Message>/);
 });
 
 test('repeated polling creates one delivery per subscriber; late joiners get no historical alert', async () => {
@@ -176,7 +180,7 @@ test('full scheduled poll checks MLB, records a real play, sends once, and toler
 
 test('cleanup still removes expired signup records when alert delivery is paused', async () => {
   const env = setup();
-  await incoming(env, message('TRIPLES'), 1000);
+  pending(env, 1000);
   await poll(env, 1000 + 8 * 86400000);
   assert.equal(row(env), undefined);
 });
@@ -339,4 +343,19 @@ test('prelaunch rejects failed verification and respects STOP and retention', as
   await poll(env,now);
   assert.equal(env.sqlite.prepare('SELECT COUNT(*) AS n FROM signup_waitlist').get().n, 0);
   assert.equal(calls.texts,0);
+});
+
+
+test('keyword signup is disabled and replies do not advertise it', async () => {
+  const env = setup();
+  for (const keyword of ['TRIPLES', 'START', 'UNSTOP', 'YES']) {
+    const reply = await incoming(env, message(keyword));
+    assert.doesNotMatch(reply, /Text TRIPLES/i);
+    assert.equal(row(env), undefined);
+  }
+  for (const keyword of ['HELP', 'INFO']) {
+    const reply = await incoming(env, message(keyword));
+    assert.match(reply, /test@example.com/);
+    assert.doesNotMatch(reply, /Text TRIPLES/i);
+  }
 });
