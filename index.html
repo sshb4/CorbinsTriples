@@ -3,11 +3,42 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Corbin Carroll's Triples</title>
+    <title>Corbin Carroll Triples | Season &amp; Career Stats</title>
     <meta
       name="description"
-      content="Corbin Carroll triples."
+      content="Track Corbin Carroll's triples with current-season and career totals, his most recent triples, year-by-year stats, and MLB leaderboards."
     />
+    <link rel="canonical" href="https://corbinstriples.com/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Corbin Triples" />
+    <meta property="og:title" content="Corbin Carroll Triples | Season &amp; Career Stats" />
+    <meta property="og:description" content="Track Corbin Carroll's triples: season and career totals, recent triples, year-by-year stats, and MLB leaderboards." />
+    <meta property="og:url" content="https://corbinstriples.com/" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "@id": "https://corbinstriples.com/#website",
+            "url": "https://corbinstriples.com/",
+            "name": "Corbin Triples",
+            "alternateName": "Corbin Carroll's Triples",
+            "inLanguage": "en"
+          },
+          {
+            "@type": "WebPage",
+            "@id": "https://corbinstriples.com/#webpage",
+            "url": "https://corbinstriples.com/",
+            "name": "Corbin Carroll Triples | Season & Career Stats",
+            "description": "Current-season and career triples, recent triples, year-by-year stats, and MLB leaderboards for Corbin Carroll.",
+            "isPartOf": { "@id": "https://corbinstriples.com/#website" },
+            "about": { "@type": "Person", "name": "Corbin Carroll" },
+            "inLanguage": "en"
+          }
+        ]
+      }
+    </script>
     <link rel="icon" type="image/svg+xml" href="favicon.svg?v=3" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -22,7 +53,7 @@
 <script src="analytics.js"></script>
   <body>
     <div class="wrap">
-      <main class="grid">
+      <main class="grid" id="triples-stats">
         <section class="panel hero" aria-label="Current season triples">
           <div class="hero-status">
             <span id="status">Loading...</span>
@@ -153,20 +184,22 @@
             <div class="alerts-copy">
               <h2 id="alerts-heading">Triple alerts</h2>
               <p>He triples. You get a text.</p>
+              <p>SMS alerts are optional. View all the stats without an account, phone number, or text alerts.</p>
               <p>Sign up before launch to save your number. We will send a confirmation text after alerts launch; reply YES to activate. No texts are sent when you submit now.</p>
             </div>
             <form id="sms-form" class="sms-form" aria-describedby="sms-form-status sms-disclosure">
               <label for="sms-phone">Your phone number <span>(US only)</span></label>
               <div class="sms-form-row">
-                <input id="sms-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" maxlength="25" placeholder="(520) 555-0123" required aria-describedby="sms-form-status" />
-                <button id="sms-form-submit" class="sms-button" type="submit" disabled>Get triple texts</button>
+                <input id="sms-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" maxlength="25" placeholder="(520) 555-0123" aria-describedby="sms-form-status" />
+                <button id="sms-form-submit" class="sms-button" type="submit" disabled>Continue without texts</button>
               </div>
               <p id="sms-form-status" class="sms-form-status" role="status" aria-live="polite" aria-atomic="true" tabindex="-1">Enable JavaScript and complete the security check to save your signup request.</p>
               <label class="sms-consent" for="sms-consent">
-                <input id="sms-consent" name="consent" type="checkbox" required />
-                <span>I agree to receive recurring automated Corbin Triples alerts at the phone number entered above. Consent is not a condition of purchase.</span>
+                <input id="sms-consent" name="consent" type="checkbox" />
+                <span>Optional: I agree to receive recurring automated Corbin Triples alerts at the phone number entered above. Consent is not required to view stats or make a purchase.</span>
               </label>
               <p id="sms-disclosure" class="sms-disclosure">After launch, reply YES to your confirmation text to activate. Frequency varies. Message and data rates may apply. STOP to cancel, HELP for help. <a href="/sms-terms/">Terms</a> · <a href="/sms-privacy/">Privacy</a></p>
+              <p class="sms-skip"><a href="#triples-stats">Continue without texts — view the stats</a></p>
               <div id="sms-turnstile"></div>
               <noscript><p>Enable JavaScript to use this signup form.</p></noscript>
             </form>

@@ -1183,3 +1183,7 @@
   }
   .leaderboard-columns { letter-spacing: .02em; }
 }
+
+.sms-skip { margin: 14px 0; font-size: .88rem; }
+.sms-skip a { color: var(--accent); text-underline-offset: 3px; }
+.sms-skip a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }

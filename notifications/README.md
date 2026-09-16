@@ -82,7 +82,7 @@ Keep `ALERTS_ENABLED=false` while checking the following with a consenting test 
 3. Reply HELP and verify the public support contact.
 4. Reply STOP; verify the database says `stopped` and pending alerts are cancelled.
 5. Text START, then TRIPLES and YES; verify fresh confirmation is required.
-6. With web signup enabled, enter a consenting test number, leave the checkbox unchecked and verify submission is unavailable. Check it, complete Turnstile, submit, and verify the number is pending until YES. Test repeated requests and STOP.
+6. With web signup enabled, enter a consenting test number, leave the checkbox unchecked and verify continuing saves no number and makes no signup request. Check it, complete Turnstile, submit, and verify the number is pending until YES. Test repeated requests and STOP.
 7. Send an explicitly identified test alert from Twilio to that consenting phone; verify delivery and account configuration. Do not label synthetic tests as real triples. Our automated tests cover real MLB detection and the outbox with a mocked provider; they do not replace a real carrier delivery test.
 
 When ready, set `ALERTS_START_AT` to the current UTC timestamp, e.g. the output of `node -p 'new Date().toISOString()'`, and `ALERTS_ENABLED=true`. Deploy the Worker. Confirm the public phone number, support email, API origin, and Turnstile site key in `../alerts-config.js`, then publish the website changes. The button opens a composed SMS; it never sends a text by itself.
@@ -147,3 +147,24 @@ signup method during review. Frequency varies; message and data rates may
 apply; STOP cancels and HELP provides support. Terms:
 https://corbinstriples.com/sms-terms/ . Privacy:
 https://corbinstriples.com/sms-privacy/ .
+
+
+## Optional SMS consent (September 16)
+
+The stats are accessible without an account, phone number, or SMS consent.
+The separate SMS checkbox is optional and unchecked. Continuing without checking
+it sends no signup request and saves no phone number. The explicit skip link
+returns to the stats without requiring the form or security check. Selecting SMS
+makes the phone field required; server-side consent and Turnstile checks remain.
+
+Campaign wording: Visitors can freely use https://corbinstriples.com/ without an
+account, phone number, or texts. At https://corbinstriples.com/#sms-alerts, an
+optional, unchecked checkbox specifically requests recurring Corbin Triples SMS.
+Visitors can leave it unchecked and continue without texts, or use the explicit
+skip link to view stats; neither path submits their phone number. Only visitors
+who select SMS, provide a US phone number, complete the security check, and submit
+have a consent request stored. Before launch no text is sent. After approval and
+launch, they must reply YES to a confirmation text before receiving alerts.
+Frequency varies; message and data rates may apply. STOP cancels; HELP provides
+support. Terms: https://corbinstriples.com/sms-terms/ .
+Privacy: https://corbinstriples.com/sms-privacy/ .

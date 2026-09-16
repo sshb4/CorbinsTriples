@@ -25,6 +25,12 @@
     // Keep the action available so validation explains what is missing.
     // Consent and security verification are still required before any request.
     const updateButton = () => { submit.disabled = busy; };
+    const updateChoice = () => {
+      input.required = consent.checked;
+      submit.textContent = consent.checked ? 'Get triple texts' : 'Continue without texts';
+    };
+    consent.addEventListener('change', updateChoice);
+    updateChoice();
     updateButton();
     if (endpoint && config.turnstileSiteKey) {
       status.textContent = 'Complete the security check, then submit your signup request.';
@@ -66,12 +72,14 @@
     }
     form.addEventListener('submit', async event => {
       event.preventDefault();
-      if (busy || !form.reportValidity()) return;
+      if (busy) return;
       if (!consent.checked) {
-        status.textContent = 'Please check the consent box to request text alerts.';
-        consent.focus();
+        form.reset();
+        updateChoice();
+        showResult('You can view all the stats without texts. No signup request was submitted and no phone number was saved.', 'info');
         return;
       }
+      if (!form.reportValidity()) return;
       if (!endpoint || !config.turnstileSiteKey) {
         status.textContent = 'Phone signup is not open yet. Please check back soon.';
         return;
@@ -93,7 +101,7 @@
         });
         const result = await response.json();
         showResult(result.message || 'Something went wrong. Please try again later.', response.ok && result.message ? 'success' : 'error');
-        if (response.ok) form.reset();
+        if (response.ok) { form.reset(); updateChoice(); }
       } catch {
         showResult('We could not confirm whether your request was saved. Please try again later.', 'error');
       } finally {
