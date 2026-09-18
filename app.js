@@ -904,14 +904,46 @@
             `${MLB_BASE}/stats?stats=career&group=hitting` +
             "&playerPool=ALL&sortStat=triples&order=desc&limit=5000";
 
-          const [profileRes, seasonRes, careerRes, yearRes, seasonLeaderboardRes, careerLeaderboardRes] = await Promise.allSettled([
+          // Paint the headline stats independently of the much larger leaderboards.
+          const totalsPromise = Promise.allSettled([
+            fetchJson(seasonUrl).then((payload) => {
+              const triples = seasonTriplesFrom(payload, season);
+              els.seasonTriples.textContent = fmtNumber(triples);
+              setTripleNumber(triples);
+              return payload;
+            }),
+            fetchJson(careerUrl).then((payload) => {
+              els.careerTriples.textContent = fmtNumber(careerTriplesFrom(payload));
+              return payload;
+            }),
+            fetchJson(yearByYearUrl).then((payload) => {
+              const rows = groupCareerByYear(payload);
+              els.careerSeasonsMain.textContent = `${rows.length} seasons`;
+              renderCareerTable(rows);
+              return payload;
+            }),
+          ]).then(([seasonRes, careerRes, yearRes]) => {
+            const rows = yearRes.status === "fulfilled" ? groupCareerByYear(yearRes.value) : [];
+            if (seasonRes.status === "rejected") {
+              const fallback = rows.find((row) => String(row.season) === String(season));
+              els.seasonTriples.textContent = fallback ? fmtNumber(fallback.triples) : "--";
+              if (fallback) setTripleNumber(fallback.triples);
+            }
+            if (careerRes.status === "rejected") {
+              els.careerTriples.textContent = yearRes.status === "fulfilled"
+                ? fmtNumber(rows.reduce((sum, row) => sum + row.triples, 0))
+                : "--";
+            }
+            return rows;
+          });
+
+          const [profileRes, totalsRes, seasonLeaderboardRes, careerLeaderboardRes] = await Promise.allSettled([
             fetchJson(profileUrl),
-            fetchJson(seasonUrl),
-            fetchJson(careerUrl),
-            fetchJson(yearByYearUrl),
+            totalsPromise,
             fetchAllStats(seasonLeaderboardUrl),
             fetchAllStats(careerLeaderboardUrl),
           ]);
+          const careerRows = totalsRes.status === "fulfilled" ? totalsRes.value : [];
 
           const profile = profileRes.status === "fulfilled" ? profileRes.value?.people?.[0] : null;
           const player = playerName(profile);
@@ -926,7 +958,6 @@
             careerLeaderboardRes.status === "fulfilled"
               ? getLeaderboardData(careerLeaderboardRes.value, PERSON_ID, player)
               : null;
-          await addCareerSeasonCounts(careerLeaderboardData);
           renderLeaderboard(
             els.seasonLeaderboard,
             seasonLeaderboardData,
@@ -940,25 +971,12 @@
             player
           );
 
-          const seasonTriples =
-            seasonRes.status === "fulfilled"
-              ? seasonTriplesFrom(seasonRes.value, season)
-              : 0;
-          const careerTriples =
-            careerRes.status === "fulfilled"
-              ? careerTriplesFrom(careerRes.value)
-              : 0;
-          const careerRows =
-            yearRes.status === "fulfilled" ? groupCareerByYear(yearRes.value) : [];
-
-          const seasonFallback = careerRows.find((row) => String(row.season) === String(season));
-          const summedCareer = careerRows.reduce((sum, row) => sum + row.triples, 0);
-          els.careerSeasonsMain.textContent = `${careerRows.length} seasons`;
-
-          const heroTriples = seasonTriples || (seasonFallback ? seasonFallback.triples : 0);
-          els.seasonTriples.textContent = fmtNumber(heroTriples);
-          els.careerTriples.textContent = fmtNumber(careerTriples || summedCareer);
-          setTripleNumber(heroTriples);
+          const careerSeasonsPromise = addCareerSeasonCounts(careerLeaderboardData).then(() => {
+            renderLeaderboard(els.careerLeaderboard, careerLeaderboardData, true, player);
+          });
+          const leadingSeasonsPromise = markLeagueLeadingSeasons(careerRows).then(() => {
+            renderCareerTable(careerRows);
+          });
 
           let recentEvents = [];
           try {
@@ -970,8 +988,7 @@
               <li class="empty">No data.</li>
             `;
           }
-          await markLeagueLeadingSeasons(careerRows);
-          renderCareerTable(careerRows);
+          await Promise.all([careerSeasonsPromise, leadingSeasonsPromise]);
 
           lastLoadedAt = new Date();
           els.status.textContent = `Updated ${timeAgoLabel(lastLoadedAt)}`;

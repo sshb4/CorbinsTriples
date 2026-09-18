@@ -4,7 +4,9 @@ The website stays on GitHub Pages. This separate Cloudflare Worker receives Twil
 
 ## Current state
 
-Implemented and tested locally; not deployed. The user purchased (520) 777-0150 and is completing Sole Proprietor A2P 10DLC registration. No application SMS has been sent and no credentials are in the repo. The homepage shows only the phone form with an unchecked consent box. Pre-launch collection saves requests without sending texts. A YES reply to a later confirmation text is required before enrollment. Keyword signup is disabled; only the website form collects new requests.
+As of September 17, 2026, the Worker is deployed at `https://corbin-triple-alerts.sashacbates.workers.dev`. The owner reported Twilio campaign approval and successfully tested the website signup, YES reply, and subscription confirmation with (520) 777-0150 as the sender. A real game-alert delivery and the live Cron Trigger have not yet been independently verified. Keyword signup is disabled; only the website form collects new requests. Existing waitlist requests still require a separate confirmation step.
+
+The checked-in `wrangler.jsonc` retains disabled/pre-launch defaults and a placeholder database ID. Reconcile it with the live dashboard settings before deploying from the CLI. See the [project README](../README.md) for launch configuration and remaining work. The pre-launch sections below document the earlier collection flow.
 
 Regular-season games only, US subscribers only. Default capacity: 100 active subscribers. Default automated alert limit: 1,000 attempted recipient messages per UTC calendar month. Signup replies and Twilio/carrier automatic replies are additional billable messages; this limit is not an account-wide spending cap. Configure Twilio billing alerts as well.
 
@@ -66,11 +68,11 @@ this document rather than describing the future keyword flow.
 
 Create a Turnstile widget restricted to `corbinstriples.com`. Set `TURNSTILE_SECRET_KEY` using `wrangler secret put` as above. The widget uses action `sms-signup`; the server verifies the token, action, and hostname with Cloudflare before requesting any SMS.
 
-Apply **both migrations**, including `0002_web_signup.sql`, before deploying the updated Worker. Set `SITE_ORIGIN` to the exact website origin. Only that origin receives CORS permission on POST `/subscribe`. There is no public endpoint that accepts arbitrary SMS content or enrolls a number immediately.
+For a new database, apply all three migrations in order, including `0003_waitlist.sql`. For an existing database, inspect its schema and migration history first; do not rerun initial schema creation over manually initialized tables. Set `SITE_ORIGIN` to the exact website origin. Only that origin receives CORS permission on POST `/subscribe`. There is no public endpoint that accepts arbitrary SMS content or enrolls a number immediately.
 
 Fill `apiBaseUrl` in `../alerts-config.js` with the deployed Worker origin and `turnstileSiteKey` with the widget's public key. The form appears before connection, but cannot submit until the API URL and security key are configured. No local fake-success mode is used. Once registration, credentials, support information, and webhook tests are ready, set `SIGNUPS_ENABLED=true` and deploy. This switch is separate from `ALERTS_ENABLED`, allowing consent-flow testing before game alerts start.
 
-Web requests are limited to 5 per IP per hour, 2 per number per UTC day, and 100 confirmation attempts per UTC day by default (`MAX_WEB_SIGNUPS_PER_DAY`). Recent confirmation requests also have a 10-minute cooldown. Failed attempts count toward limits. IP/phone rate-limit keys are HMAC hashes; raw IP addresses are not stored. Actual signup records necessarily contain the subscriber phone number. Existing active subscribers are not sent another confirmation; stopped subscribers must rejoin by SMS. These limits cover the web form only, not inbound SMS or carrier-generated responses.
+Web requests are limited to 5 per IP per hour, 2 per number per UTC day, and 100 confirmation attempts per UTC day by default (`MAX_WEB_SIGNUPS_PER_DAY`). Recent confirmation requests also have a 10-minute cooldown. Failed attempts count toward limits. IP/phone rate-limit keys are HMAC hashes; raw IP addresses are not stored. Actual signup records necessarily contain the subscriber phone number. Existing active subscribers are not sent another confirmation; stopped subscribers must contact support to rejoin. These limits cover the web form only, not inbound SMS or carrier-generated responses.
 
 ## Test before public launch
 
