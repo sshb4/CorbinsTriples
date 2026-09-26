@@ -8,6 +8,7 @@
         --muted: #6b6258;
         --line: rgba(31, 31, 31, 0.12);
         --soft: rgba(31, 31, 31, 0.08);
+        --stats-row-height: 57px;
         --accent: #a51d36;
         --accent-deep: #641426;
         --accent-soft: rgba(165, 29, 54, 0.1);
@@ -616,7 +617,7 @@
 
       .triple-item {
         border-bottom: 1px solid var(--soft);
-        min-height: 56px;
+        min-height: var(--stats-row-height);
         box-sizing: border-box;
         padding: 7px 0;
         display: flex;
@@ -889,7 +890,7 @@
       }
 
       tbody tr {
-        height: 56px;
+        height: var(--stats-row-height);
       }
 
       .year {
@@ -911,21 +912,22 @@
       }
 
       .leader-notes {
-        position: absolute;
-        top: 50%;
-        left: calc(50% + 20px);
-        display: inline-flex;
-        gap: 5px;
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 2px;
+        gap: 0 5px;
         color: var(--muted);
         font-size: 0.62rem;
+        line-height: 1.2;
         font-weight: 600;
         letter-spacing: 0.02em;
         white-space: nowrap;
-        transform: translateY(-50%);
       }
 
       .leader-cell {
         position: relative;
+        padding-block: 2px;
       }
 
       .error {

@@ -797,9 +797,17 @@
           return;
         }
 
+        const careerHigh = Math.max(...rows.map((row) => row.triples));
         els.careerTable.innerHTML = rows
           .map((row) => {
             const teamText = row.teams.length ? row.teams.join(", ") : "Unknown team";
+            const notes = [];
+            if (row.mlbLeader || row.leagueLeader) {
+              notes.push(`Led ${row.mlbLeader ? "MLB" : "NL"}`);
+            }
+            if (careerHigh > 0 && row.triples === careerHigh) {
+              notes.push("Career high");
+            }
             return `
               <tr>
                 <td class="year">${row.season}</td>
@@ -809,8 +817,8 @@
                     row.leagueLeader || row.mlbLeader ? "league-leading" : "",
                     row.mlbLeader ? "mlb-leading" : "",
                   ].filter(Boolean).join(" ")}">${fmtNumber(row.triples)}</strong>${
-                    row.leagueLeader || row.mlbLeader
-                      ? `<span class="leader-notes" aria-label="${row.mlbLeader ? "MLB leader" : "NL leader"}"><span>Led ${row.mlbLeader ? "MLB" : "NL"}</span></span>`
+                    notes.length
+                      ? `<span class="leader-notes">${notes.map((note) => `<span>${note}</span>`).join('<span aria-hidden="true">·</span>')}</span>`
                       : ""
                   }
                 </td>
@@ -1050,4 +1058,3 @@
 
       scheduleAutoRefresh();
       loadData();
-    
