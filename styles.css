@@ -60,6 +60,20 @@
         pointer-events: none;
       }
 
+      .season-banner {
+        position: relative;
+        z-index: 1;
+        padding: 10px 16px;
+        background: var(--accent);
+        color: var(--panel-solid);
+        font-family: "Bebas Neue", Impact, sans-serif;
+        font-size: 1.4rem;
+        letter-spacing: 0.1em;
+        line-height: 1.25;
+        text-align: center;
+        text-transform: uppercase;
+      }
+
       .wrap {
         position: relative;
         z-index: 1;
